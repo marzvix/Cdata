@@ -58,7 +58,7 @@ void db_cls(void);
 void dberror(void);
 int rlen(DBFILE);
 void init_rcd(DBFILE, void *);
-void cirrcd(void *, const ELEMENT *);
+void clrrcd(void *, const ELEMENT *);
 int epos(ELEMENT, const ELEMENT *);
 void rcd_fill(const void *, void *, const ELEMENT *,
               const ELEMENT *);

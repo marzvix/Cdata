@@ -1,0 +1,321 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ADDRESS	cbs_data_el_list.h	/^	 ADDRESS,$/;"	e	enum:elements
+ADR	btree.h	5;"	d
+ALT_BS	keys.h	11;"	d
+AMD_EXPENDED	cbs_data_el_list.h	/^	 AMD_EXPENDED,$/;"	e	enum:elements
+AMT_DUE	cbs_data_el_list.h	/^	 AMT_DUE,$/;"	e	enum:elements
+ASSIGNMENTS	cbs_file_specs.h	/^	ASSIGNMENTS				$/;"	e	enum:files
+BELL	keys.h	6;"	d
+BS	keys.h	52;"	d
+BTREE	btree.h	/^} BTREE;$/;"	t	typeref:struct:treenode
+CC	Makefile	/^CC = $(GCCPATH)\/gcc$/;"	m
+CDATA_APPL	Makefile	/^CDATA_APPL = cbs$/;"	m
+CDATA_H	cdata.h	6;"	d
+CFLAGS	Makefile	/^CFLAGS = -g -O0$/;"	m
+CITY	cbs_data_el_list.h	/^	 CITY,$/;"	e	enum:elements
+CLIENTS	cbs_file_specs.h	/^	CLIENTS,$/;"	e	enum:files
+CLIENT_NAME	cbs_data_el_list.h	/^	 CLIENT_NAME,$/;"	e	enum:elements
+CLIENT_NO	cbs_data_el_list.h	/^	 CLIENT_NO=1,$/;"	e	enum:elements
+CONSULTANTS	cbs_file_specs.h	/^	CONSULTANTS,$/;"	e	enum:files
+CONSULTANT_NAME	cbs_data_el_list.h	/^	 CONSULTANT_NAME,$/;"	e	enum:elements
+CONSULTANT_NO	cbs_data_el_list.h	/^	 CONSULTANT_NO,$/;"	e	enum:elements
+CTRL_INS	keys.h	13;"	d
+DATE_PAID	cbs_data_el_list.h	/^	 DATE_PAID$/;"	e	enum:elements
+DBFILE	cbs_file_specs.h	/^} DBFILE;$/;"	t	typeref:enum:files
+DBFILE	cdata.h	/^typedef int DBFILE;$/;"	t
+DEL	keys.h	58;"	d
+DN	keys.h	55;"	d
+D_BOF	cdata.h	/^    D_BOF,    \/* beggining of file *\/$/;"	e	enum:dberrors
+D_DUPL	cdata.h	/^    D_DUPL,   \/* primary key already exists *\/$/;"	e	enum:dberrors
+D_EOF	cdata.h	/^    D_EOF,    \/* end of file *\/$/;"	e	enum:dberrors
+D_INDXC	cdata.h	/^    D_INDXC,  \/* index corrupted *\/$/;"	e	enum:dberrors
+D_IOERR	cdata.h	/^    D_IOERR   \/* io error *\/$/;"	e	enum:dberrors
+D_NF	cdata.h	/^    D_NF=1,   \/* record not found *\/$/;"	e	enum:dberrors
+D_OM	cdata.h	/^    D_OM,     \/* out of memory *\/$/;"	e	enum:dberrors
+D_PRIOR	cdata.h	/^    D_PRIOR,  \/* no prior record for this request *\/$/;"	e	enum:dberrors
+ELEMENT	cbs_data_el_list.h	/^} ELEMENT;$/;"	t	typeref:enum:elements
+ELEMENT	cdata.h	/^typedef int ELEMENT;$/;"	t
+END	keys.h	54;"	d
+ENTLN	btree.c	10;"	d	file:
+ERROR	cdata.h	18;"	d
+ER_COMMA	schema.c	/^    ER_COMMA,$/;"	e	enum:error_codes	file:
+ER_COMMAND	schema.c	/^    ER_COMMAND,$/;"	e	enum:error_codes	file:
+ER_DUPLNAME	schema.c	/^    ER_DUPLNAME,$/;"	e	enum:error_codes	file:
+ER_DUPL_ELEMENT	schema.c	/^    ER_DUPL_ELEMENT,$/;"	e	enum:error_codes	file:
+ER_EOF	schema.c	/^    ER_EOF,$/;"	e	enum:error_codes	file:
+ER_LENGTH	schema.c	/^    ER_LENGTH,$/;"	e	enum:error_codes	file:
+ER_MEMORY	schema.c	/^    ER_MEMORY,$/;"	e	enum:error_codes	file:
+ER_NAME	schema.c	/^    ER_NAME=1,$/;"	e	enum:error_codes	file:
+ER_NOSCHEMA	schema.c	/^    ER_NOSCHEMA,$/;"	e	enum:error_codes	file:
+ER_NOSUCH_SCHEMA	schema.c	/^    ER_NOSUCH_SCHEMA,$/;"	e	enum:error_codes	file:
+ER_QUOTE	schema.c	/^    ER_QUOTE,$/;"	e	enum:error_codes	file:
+ER_SCHEMA	schema.c	/^    ER_SCHEMA,$/;"	e	enum:error_codes	file:
+ER_TERMINAL	schema.c	/^    ER_TERMINAL$/;"	e	enum:error_codes	file:
+ER_TOOMANY_ELEMENTS	schema.c	/^    ER_TOOMANY_ELEMENTS,$/;"	e	enum:error_codes	file:
+ER_TOOMANY_FILES	schema.c	/^    ER_TOOMANY_FILES,$/;"	e	enum:error_codes	file:
+ER_TOOMANY_INDEXES	schema.c	/^    ER_TOOMANY_INDEXES,$/;"	e	enum:error_codes	file:
+ER_TOOMANY_IN_INDEX	schema.c	/^    ER_TOOMANY_IN_INDEX,$/;"	e	enum:error_codes	file:
+ER_TYPE	schema.c	/^    ER_TYPE,$/;"	e	enum:error_codes	file:
+ER_UNKNOWN_ELEMENT	schema.c	/^    ER_UNKNOWN_ELEMENT,$/;"	e	enum:error_codes	file:
+ER_UNKNOWN_FILENAME	schema.c	/^    ER_UNKNOWN_FILENAME,$/;"	e	enum:error_codes	file:
+ESC	keys.h	9;"	d
+EXPENSE	cbs_data_el_list.h	/^	 EXPENSE,$/;"	e	enum:elements
+F1	keys.h	16;"	d
+F10	keys.h	25;"	d
+F2	keys.h	17;"	d
+F3	keys.h	18;"	d
+F4	keys.h	19;"	d
+F5	keys.h	20;"	d
+F6	keys.h	21;"	d
+F7	keys.h	22;"	d
+F8	keys.h	23;"	d
+F9	keys.h	24;"	d
+FALSE	cdata.h	23;"	d
+FHEADER	datafile.h	/^} FHEADER;$/;"	t	typeref:struct:fhdr
+FWD	keys.h	53;"	d
+FieldChar	screen.c	/^int FieldChar = '_';             \/* field filler character *\/$/;"	v
+GCCPATH	Makefile	/^GCCPATH = \/usr\/bin$/;"	m
+HEADER	btree.h	/^} HEADER;$/;"	t	typeref:struct:treehdr
+HOME	keys.h	49;"	d
+HOURS	cbs_data_el_list.h	/^	 HOURS,$/;"	e	enum:elements
+HT	keys.h	8;"	d
+INS	keys.h	57;"	d
+KEYS_H	keys.h	4;"	d
+KLEN	btree.c	9;"	d	file:
+LDFLAGS	Makefile	/^LDFLAGS =$/;"	m
+LIBPATH	Makefile	/^LIBPATH = $(GCCPATH)\/lib$/;"	m
+LIBS	Makefile	/^LIBS = cdata ncurses$/;"	m
+MXCAT	cdata.h	12;"	d
+MXELE	cdata.h	9;"	d
+MXFILS	cdata.h	8;"	d
+MXINDEX	cdata.h	10;"	d
+MXKEYLEN	cdata.h	11;"	d
+MXTREES	btree.h	3;"	d
+NAMELEN	cdata.h	13;"	d
+NODE	btree.h	4;"	d
+OK	cdata.h	19;"	d
+PAYMENT	cbs_data_el_list.h	/^	 PAYMENT,$/;"	e	enum:elements
+PGDN	keys.h	56;"	d
+PGUP	keys.h	51;"	d
+PHONE	cbs_data_el_list.h	/^	 PHONE,$/;"	e	enum:elements
+PROJECTS	cbs_file_specs.h	/^	PROJECTS,$/;"	e	enum:files
+PROJECT_NAME	cbs_data_el_list.h	/^	 PROJECT_NAME,$/;"	e	enum:elements
+PROJECT_NO	cbs_data_el_list.h	/^	 PROJECT_NO,$/;"	e	enum:elements
+RATE	cbs_data_el_list.h	/^	 RATE,$/;"	e	enum:elements
+REMARK	schema.c	110;"	d	file:
+RPTR	cdata.h	/^typedef long RPTR;        \/* B-tree node and file address   *\/$/;"	t
+RUBOUT	keys.h	7;"	d
+SCREEN_H	screen.h	4;"	d
+SHIFT_DEL	keys.h	12;"	d
+SHIFT_INS	keys.h	14;"	d
+STATE	cbs_data_el_list.h	/^	 STATE,$/;"	e	enum:elements
+SYS_H	sys.h	3;"	d
+TRUE	cdata.h	22;"	d
+UP	keys.h	50;"	d
+ZIP	cbs_data_el_list.h	/^	 ZIP,$/;"	e	enum:elements
+add_indexes	cdata.c	/^int add_indexes(DBFILE f, void *bf, RPTR ad)$/;"	f
+add_rcd	cdata.c	/^int add_rcd(DBFILE f, void *bf)$/;"	f
+address	cbs_file_rec_stru.h	/^    char address           [26];$/;"	m	struct:clients
+adopt	btree.c	/^static void adopt(void *ad, int kct, RPTR newp)$/;"	f	file:
+amt_due	cbs_file_rec_stru.h	/^    char amt_due            [9];$/;"	m	struct:clients
+amt_expended	cbs_file_rec_stru.h	/^    char amt_expended      [10];$/;"	m	struct:clients
+amt_expended	cbs_file_rec_stru.h	/^    char amt_expended      [10];$/;"	m	struct:projects
+assignments	cbs_file_rec_stru.h	/^struct assignments {$/;"	s
+bfd	cdata.c	/^static int bfd [MXFILS] [MXINDEX];$/;"	v	file:
+bfs	cdata.c	/^static char *bfs [MXFILS];      \/* file i\/o buffers           *\/$/;"	v	file:
+bheader	btree.c	/^HEADER bheader[MXTREES];$/;"	v
+bseek	btree.c	/^static void bseek(RPTR nd)$/;"	f	file:
+btree_close	btree.c	/^int btree_close(int tree)$/;"	f
+btree_init	btree.c	/^int btree_init(char *ndx_name)$/;"	f
+btreescan	btree.c	/^static int btreescan(RPTR *t, char *k, char **a)$/;"	f	file:
+build_b	btree.c	/^void build_b(char *name, int len)$/;"	f
+build_index	cdata.c	/^void build_index(char *path, DBFILE f)$/;"	f
+childptr	btree.c	/^static char *childptr(RPTR left, RPTR parent, BTREE *btp)$/;"	f	file:
+city	cbs_file_rec_stru.h	/^    char city              [26];$/;"	m	struct:clients
+clear_screen	sys.c	/^void clear_screen(void)$/;"	f
+client_name	cbs_file_rec_stru.h	/^    char client_name       [26];$/;"	m	struct:clients
+client_no	cbs_file_rec_stru.h	/^	char client_no          [6];$/;"	m	struct:projects
+client_no	cbs_file_rec_stru.h	/^    char client_no          [6];$/;"	m	struct:clients
+clients	cbs_file_rec_stru.h	/^struct clients {$/;"	s
+clrrcd	cdata.c	/^void clrrcd(void *bf, const ELEMENT *els)$/;"	f
+cls_index	cdata.c	/^static void cls_index(DBFILE f)$/;"	f	file:
+compare_keys	btree.c	/^static int compare_keys(char *a, char *b)$/;"	f	file:
+consultant_name	cbs_file_rec_stru.h	/^    char consultant_name   [26];$/;"	m	struct:clients
+consultant_name	cbs_file_rec_stru.h	/^    char consultant_name   [26];$/;"	m	struct:consultants
+consultant_no	cbs_file_rec_stru.h	/^    char consultant_no      [6];$/;"	m	struct:assignments
+consultant_no	cbs_file_rec_stru.h	/^    char consultant_no      [6];$/;"	m	struct:clients
+consultant_no	cbs_file_rec_stru.h	/^    char consultant_no      [6];$/;"	m	struct:consultants
+consultants	cbs_file_rec_stru.h	/^struct consultants {$/;"	s
+curr_a	cdata.c	/^RPTR curr_a [MXFILS];          \/* current record file address *\/$/;"	v
+curr_fd	cdata.c	/^static int curr_fd [MXFILS];    \/* current file descriptor    *\/$/;"	v	file:
+curr_rcd	cdata.c	/^int curr_rcd(DBFILE f, int k, void *bf)$/;"	f
+currkey	btree.c	/^RPTR currkey(int tree)$/;"	f
+currkno	btree.c	/^static int currkno[MXTREES];      \/* key number of current key *\/$/;"	v	file:
+currnode	btree.c	/^static RPTR currnode[MXTREES]; \/* node number of current key *\/$/;"	v	file:
+cursor	sys.c	/^void cursor(int x, int y)$/;"	f
+data_in	cdata.c	/^static int data_in(char *c)$/;"	f	file:
+database_message	cdata.c	/^void (*database_message)(void);$/;"	v
+date_paid	cbs_file_rec_stru.h	/^    char date_paid          [7];$/;"	m	struct:clients
+db_cls	cdata.c	/^void db_cls(void)$/;"	f
+db_open	cdata.c	/^void db_open(const char *path, const DBFILE *fl)$/;"	f
+db_opened	cdata.c	/^static int db_opened = FALSE;   \/* data base opende indicator *\/$/;"	v	file:
+dberror	cdata.c	/^void dberror(void)$/;"	f
+dberrors	cdata.h	/^enum dberrors {$/;"	g
+dbfiles	cbs_file_specs.h	/^const char *dbfiles [] = {$/;"	v
+dbpath	cdata.c	/^static char dbpath [64];$/;"	v	file:
+dc	schema.c	/^} dc [MXELE];$/;"	v	typeref:struct:dict	file:
+de_dict	schema.c	/^static void de_dict(void)$/;"	f	file:
+dectr	schema.c	/^static int dectr = 0;        \/* data elements in dictionary    *\/$/;"	v	file:
+defout	schema.c	/^static void defout(const char *fname)$/;"	f	file:
+del_indexes	cdata.c	/^static void del_indexes(DBFILE f, RPTR ad)$/;"	f	file:
+del_rcd	cdata.c	/^int del_rcd(DBFILE f)$/;"	f
+delen	schema.c	/^    char delen;              \/* lenght                   *\/$/;"	m	struct:dict	file:
+delete_record	datafile.c	/^int delete_record(int fno, RPTR rcdno)$/;"	f
+deletekey	btree.c	/^int deletekey(int tree, char *x, RPTR ad)$/;"	f
+demask	schema.c	/^    char *demask;            \/* display mask             *\/$/;"	m	struct:dict	file:
+dename	schema.c	/^    char dename [NAMELEN+1]; \/* name                     *\/$/;"	m	struct:dict	file:
+denames	cbs_data_el_names.h	/^const char *denames [] = {$/;"	v
+detype	schema.c	/^    char detype;             \/* type                     *\/$/;"	m	struct:dict	file:
+dict	schema.c	/^static struct dict {         \/* data element dictionary  *\/$/;"	s	file:
+ec	schema.c	/^    enum error_codes ec;$/;"	m	struct:__anon1	typeref:enum:__anon1::error_codes	file:
+edits	screen.c	/^  int (*edits)();              \/* custom edit function     *\/$/;"	m	struct:__anon2	file:
+elements	cbs_data_el_list.h	/^typedef enum elements	{$/;"	g
+ellen	cbs_data_el_len.h	/^const int ellen [] = {$/;"	v
+elmask	cbs_data_el_displch.h	/^const char *elmask [] =	{$/;"	v
+eltype	cbs_data_el_displch.h	/^const char eltype [] = "ZAAAANNCZACZACCCND";$/;"	v
+endnode	btree.h	/^    RPTR endnode;            \/* next unassigned node *\/$/;"	m	struct:treehdr
+epos	cdata.c	/^int epos(ELEMENT el, const ELEMENT *list)$/;"	f
+error	schema.c	/^static void error(const enum error_codes n)$/;"	f	file:
+error_codes	schema.c	/^enum error_codes { \/**\/$/;"	g	file:
+errormsg	schema.c	/^    char *errormsg;$/;"	m	struct:__anon1	file:
+ers	schema.c	/^} ers[] = { \/**\/$/;"	v	typeref:struct:__anon1	file:
+expect_comma	schema.c	/^static void expect_comma(char **cp)$/;"	f	file:
+expense	cbs_file_rec_stru.h	/^    char expense           [10];$/;"	m	struct:clients
+f_assignments	cbs_file_ct.h	/^const ELEMENT f_assignments [] = {$/;"	v
+f_clients	cbs_file_ct.h	/^const ELEMENT f_clients [] = {$/;"	v
+f_consultants	cbs_file_ct.h	/^const ELEMENT f_consultants [] = {$/;"	v
+f_projects	cbs_file_ct.h	/^const ELEMENT f_projects [] = {$/;"	v
+fctr	schema.c	/^static int fctr = 0;         \/* files in database              *\/$/;"	v	file:
+fh	datafile.c	/^FHEADER fh[MXFILS];$/;"	v
+fhdr	datafile.h	/^typedef struct fhdr {$/;"	s
+file_close	datafile.c	/^void file_close(int fno)$/;"	f
+file_create	datafile.c	/^void file_create(char *name, int len)$/;"	f
+file_ele	cbs_file_ct.h	/^const ELEMENT *file_ele [] = {$/;"	v
+file_open	datafile.c	/^int file_open(char *name)$/;"	f
+fileaddr	btree.c	/^static RPTR fileaddr(RPTR t, char *a)$/;"	f	file:
+fileele	schema.c	/^static char fileele [MXFILS] [MXELE];       \/* file elements   *\/$/;"	v	file:
+filenames	schema.c	/^static char filenames [MXFILS] [NAMELEN+1]; \/* filenames       *\/$/;"	v	file:
+files	cbs_file_specs.h	/^typedef enum files {$/;"	g
+files	schema.c	/^static void files(void)$/;"	f	file:
+find_rcd	cdata.c	/^int find_rcd(DBFILE f, int k, char *key, void *bf)$/;"	f
+firs_record	datafile.h	/^    RPTR firs_record;$/;"	m	struct:fhdr
+first_rcd	cdata.c	/^int first_rcd(DBFILE f, int k, void *bf)$/;"	f
+firstkey	btree.c	/^RPTR firstkey(int tree)$/;"	f
+flocate	datafile.c	10;"	d	file:
+fp	btree.c	/^static FILE *fp[MXTREES];         \/* file pointers to indexes *\/$/;"	v	file:
+fp	datafile.c	/^static FILE *fp[MXFILS];$/;"	v	file:
+fp	schema.c	/^static FILE *fp;$/;"	v	file:
+get_char	sys.c	/^int get_char(void)$/;"	f
+get_line	schema.c	/^static void get_line(void)$/;"	f	file:
+get_record	datafile.c	/^int get_record(int fno, RPTR rcdno, void *bf)$/;"	f
+get_word	schema.c	/^static void *get_word(char *cp)$/;"	f	file:
+getrcd	cdata.c	/^static int getrcd(DBFILE f, RPTR ad, void *bf)$/;"	f	file:
+hours	cbs_file_rec_stru.h	/^    char hours              [3];$/;"	m	struct:clients
+implode	btree.c	/^static void implode(BTREE *left, BTREE *right)$/;"	f	file:
+index_ele	cbs_index_specs.h	/^const ELEMENT **index_ele [] = {$/;"	v
+index_m	dbsize.c	/^static void index_m(int f, int *m)$/;"	f	file:
+init_index	cdata.c	/^static void init_index(const char *path, const DBFILE f)$/;"	f	file:
+init_rcd	cdata.c	/^void init_rcd(DBFILE f, void *bf)$/;"	f
+insertkey	btree.c	/^int insertkey(int tree, char *x, RPTR ad, int unique)$/;"	f
+iswhite	schema.c	109;"	d	file:
+key0	btree.h	/^    RPTR key0;      \/* node # of keys < 1st key this node   *\/$/;"	m	struct:treenode
+keyct	btree.h	/^    int keyct;      \/* number of keys *\/$/;"	m	struct:treenode
+keylength	btree.h	/^    int keylength;           \/* length of a key      *\/$/;"	m	struct:treehdr
+keys	schema.c	/^static void keys(void)$/;"	f	file:
+keyspace	btree.h	/^    char keyspace [NODE - ((sizeof(int) * 2) + (ADR * 4))];$/;"	m	struct:treenode
+keyval	btree.c	/^void keyval(int tree, char *ky)$/;"	f
+last_rcd	cdata.c	/^int last_rcd(DBFILE f, int k, void *bf)$/;"	f
+lastkey	btree.c	/^RPTR lastkey(int tree)$/;"	f
+lcase	schema.c	/^static void lcase(char *s1, const char *s2)$/;"	f	file:
+leaflevel	btree.c	/^static RPTR leaflevel(RPTR *t, char **a, int *p)$/;"	f	file:
+leftmost	btree.h	/^    RPTR leftmost;           \/* left-most node       *\/$/;"	m	struct:treehdr
+lfsib	btree.h	/^    RPTR lfsib;     \/* left sibling node *\/$/;"	m	struct:treenode
+ln	schema.c	/^static char ln [160];$/;"	v	file:
+lnctr	schema.c	/^static int lnctr = 0;        \/* input stream line counter *\/$/;"	v	file:
+locate	btree.c	/^RPTR locate(int tree, char *k)$/;"	f
+locked	btree.h	/^    int locked;              \/* if btree is locked   *\/$/;"	m	struct:treehdr
+m	btree.h	/^    int m;                   \/* max keys\/node        *\/$/;"	m	struct:treehdr
+main	dbsize.c	/^void main(void)$/;"	f
+main	schema.c	/^void main(int argc, char *argv[])$/;"	f
+main	sys.c	/^int main(void)$/;"	f
+memerr	btree.c	/^static void memerr(void)$/;"	f	file:
+name_val	schema.c	/^static void name_val(void)$/;"	f	file:
+ndxele	schema.c	/^static int ndxele [MXFILS] [MXINDEX] [MXCAT];    \/* indexes    *\/$/;"	v	file:
+new_record	datafile.c	/^RPTR new_record(int fno, void *bf)$/;"	f
+next_rcd	cdata.c	/^int next_rcd(DBFILE f, int k, void *bf)$/;"	f
+next_record	datafile.h	/^    RPTR next_record;$/;"	m	struct:fhdr
+nextkey	btree.c	/^RPTR nextkey(int tree)$/;"	f
+nextnode	btree.c	/^static RPTR nextnode(void)$/;"	f	file:
+nodescan	btree.c	/^static int nodescan(char *keyvalue, char **nodeadr)$/;"	f	file:
+nonleaf	btree.h	/^    int nonleaf;    \/* 0 if leav, 1 if non-leaf *\/$/;"	m	struct:treenode
+numb_val	schema.c	/^static void numb_val(void)$/;"	f	file:
+payment	cbs_file_rec_stru.h	/^    char payment           [10];$/;"	m	struct:clients
+phone	cbs_file_rec_stru.h	/^    char phone             [11];$/;"	m	struct:clients
+prev_rcd	cdata.c	/^int prev_rcd(DBFILE f, int k, void *bf)$/;"	f
+prevkey	btree.c	/^RPTR prevkey(int tree)$/;"	f
+prntnode	btree.h	/^    RPTR prntnode;  \/* parent node *\/$/;"	m	struct:treenode
+project_name	cbs_file_rec_stru.h	/^    char project_name      [26];$/;"	m	struct:clients
+project_name	cbs_file_rec_stru.h	/^    char project_name      [26];$/;"	m	struct:projects
+project_no	cbs_file_rec_stru.h	/^	char project_no         [6];$/;"	m	struct:assignments
+project_no	cbs_file_rec_stru.h	/^    char project_no         [6];$/;"	m	struct:clients
+project_no	cbs_file_rec_stru.h	/^    char project_no         [6];$/;"	m	struct:projects
+projects	cbs_file_rec_stru.h	/^struct projects {$/;"	s
+prot	screen.c	/^  int prot;                    \/* element protected = TRUE *\/$/;"	m	struct:__anon2	file:
+put_char	sys.c	/^void put_char(int c)$/;"	f
+put_record	datafile.c	/^int put_record(int fno, RPTR rcdno, void *br)$/;"	f
+rate	cbs_file_rec_stru.h	/^    char rate               [6];$/;"	m	struct:assignments
+rate	cbs_file_rec_stru.h	/^    char rate               [6];$/;"	m	struct:clients
+rcd_fill	cdata.c	/^void rcd_fill(const void *s, void *d,$/;"	f
+read_node	btree.c	/^static void read_node(RPTR nd, void *bf)$/;"	f	file:
+record_length	datafile.h	/^    int record_length;$/;"	m	struct:fhdr
+redist	btree.c	/^static void redist(BTREE *left, BTREE *right)$/;"	f	file:
+rel_rcd	cdata.c	/^static int rel_rcd(DBFILE f, RPTR ad, void *bf)$/;"	f	file:
+relate_rcd	cdata.c	/^static int relate_rcd(DBFILE f, void *bf)$/;"	f	file:
+rightmost	btree.h	/^    RPTR rightmost;          \/* right-most node      *\/$/;"	m	struct:treehdr
+rlen	cdata.c	/^int rlen(DBFILE f)$/;"	f
+rlsed_node	btree.h	/^    RPTR rlsed_node;         \/* nexe released node   *\/$/;"	m	struct:treehdr
+rootnode	btree.h	/^    RPTR rootnode;           \/* root node number     *\/$/;"	m	struct:treehdr
+rtn_rcd	cdata.c	/^int rtn_rcd(DBFILE f, void *bf)$/;"	f
+rtsib	btree.h	/^    RPTR rtsib;     \/* right sibling node *\/$/;"	m	struct:treenode
+sb	screen.c	/^} sb [MXELE];$/;"	v	typeref:struct:__anon2	file:
+scannext	btree.c	/^static RPTR scannext(RPTR *p, char **a)$/;"	f	file:
+scanprev	btree.c	/^static RPTR scanprev(RPTR *p, char **a)$/;"	f	file:
+schout	schema.c	/^static void schout(const char *fname)$/;"	f	file:
+seqrcd	cdata.c	/^int seqrcd(DBFILE f, void *bf)$/;"	f
+skip_white	schema.c	/^static void skip_white(char **s)$/;"	f	file:
+spil	btree.h	/^    char spil [MXKEYLEN]; \/* for insertion excess *\/$/;"	m	struct:treenode
+state	cbs_file_rec_stru.h	/^    char state              [3];$/;"	m	struct:clients
+treehdr	btree.h	/^typedef struct treehdr {$/;"	s
+treeno	cdata.c	29;"	d	file:
+treenode	btree.h	/^typedef struct treenode {$/;"	s
+trnode	btree.c	/^BTREE trnode;$/;"	v
+trx	btree.c	/^static int trx;                   \/* current tree *\/$/;"	v	file:
+verify_rcd	cdata.c	/^int verify_rcd(DBFILE f, int k, char *key)$/;"	f
+word	schema.c	/^static char word[NAMELEN+1];$/;"	v	file:
+write_node	btree.c	/^static void write_node(RPTR nd, void *bf)$/;"	f	file:
+x1_assignments	cbs_index_specs.h	/^const ELEMENT x1_assignments [] = {$/;"	v
+x1_clients	cbs_index_specs.h	/^const ELEMENT x1_clients [] = {$/;"	v
+x1_consultants	cbs_index_specs.h	/^const ELEMENT x1_consultants [] = {$/;"	v
+x1_projects	cbs_index_specs.h	/^const ELEMENT x1_projects [] = {$/;"	v
+x2_assignments	cbs_index_specs.h	/^const ELEMENT x2_assignments [] = {$/;"	v
+x3_assignments	cbs_index_specs.h	/^const ELEMENT x3_assignments [] = {$/;"	v
+x_assignments	cbs_index_specs.h	/^const ELEMENT *x_assignments [] = {$/;"	v
+x_clients	cbs_index_specs.h	/^const ELEMENT *x_clients [] = {$/;"	v
+x_consultants	cbs_index_specs.h	/^const ELEMENT *x_consultants [] = {$/;"	v
+x_projects	cbs_index_specs.h	/^const ELEMENT *x_projects [] = {$/;"	v
+zip	cbs_file_rec_stru.h	/^    char zip                [6];$/;"	m	struct:clients
