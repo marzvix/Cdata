@@ -1,4 +1,4 @@
-/* -------------- sys.c ---------------------------- */
+/* -- pg 183 ---- sys.c ---------------------------- */
 #include <stdio.h>
 
 #ifdef __CYGWIN__
@@ -11,7 +11,7 @@
 
 #include "keys.h"
 #include "sys.h"
-/* #include "cdata.h" */
+#include "cdata.h"
 
 /* =======================================================
    The following functions are keyboard and screen drivers
@@ -22,7 +22,7 @@ extern int FieldChar, screen_displayed;
 
 /* -------- write a character to the screen -------------- */
 void put_char(int c)
-{
+{ /* ok */
     switch (c) {
     case FWD: printf("\033[C");
         break;
@@ -34,14 +34,14 @@ void put_char(int c)
 }
 
 void cursor(int x, int y)
-{
+{ /* ok */
     printf("\033[%%02;0%dH",y+1, x+1);
     fflush(stdout);
 }
 
 void clear_screen(void)
 {
-    /* screen_displayed = 0; */
+    screen_displayed = 0;
     printf("\033[2J");
     fflush(stdout);
 }
@@ -58,22 +58,22 @@ int get_char(void)
 }
 
 
-/* ---- test ---- */
-int main(void)
-{
-#ifdef __CYGWIN__
-    initscr();
-	clear();
-    noecho();
-	cbreak();	/* Line buffering disabled. pass on everything */
-#endif
+/* /\* ---- test ---- *\/ */
+/* int main(void) */
+/* { */
+/* #ifdef __CYGWIN__ */
+/*     initscr(); */
+/* 	clear(); */
+/*     noecho(); */
+/* 	cbreak();	/\* Line buffering disabled. pass on everything *\/ */
+/* #endif */
 
-    clear_screen();
-    printf("%x\n",get_char());
+/*     clear_screen(); */
+/*     printf("%x\n",get_char()); */
 
-#ifdef __CYGWIN__
-    //    endwin();
-#endif
+/* #ifdef __CYGWIN__ */
+/*     //    endwin(); */
+/* #endif */
 
-    return 0;
-}
+/*     return 0; */
+/* } */

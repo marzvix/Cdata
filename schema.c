@@ -1,4 +1,4 @@
-/* --------------- schema.c -------------------- */
+/* -- pg 86 ------ schema.c -------------------- */
 
 /* 
  *  Build two C language schemas files from a CDATA schema
@@ -319,7 +319,7 @@ static void defout(const char *fname)
     strcat(fn, ".h");
     fp = fopen(fn, "w");
 
-    fprintf(fp,"/* -------- %s ------ */\n", fn);
+    fprintf(fp,"/* -- pg 101 ------ %s ----------------------- */\n", fn);
     fprintf(fp, "\n#define APPLICATION_H\n");
 
     /* ----------- ddate elements enums --------- */
@@ -361,7 +361,7 @@ static void schout(const char *fname)
     strcat(fn, ".c");
     fp = fopen(fn, "w");
 
-    fprintf(fp, "/* -------- %s ------- */\n", fn);
+    fprintf(fp, "/* -- pg 103 -------- %s ------------------ */\n", fn);
     fprintf(fp, "\n#include \"%s.h\"\n", fname);
 
     /* -------- data element ascii names ---------- */

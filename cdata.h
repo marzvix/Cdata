@@ -1,4 +1,4 @@
-/*------------------ cdata.h ----------------*/
+/*-- pg 82 --------- cdata.h ----------------*/
 
 #include <stdio.h>
 
@@ -16,8 +16,9 @@
 extern void (*database_message)(void);
 
 #define ERROR -1
+#ifndef OK
 #define OK 0
-
+#endif
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
@@ -32,7 +33,7 @@ typedef int ELEMENT;
 
 /* ---------- schema as built for the application --------- */
 extern const char *dbfiles[];       /* file names           */
-extern const char *dbnames[];       /* data element names   */
+extern const char *denames[];       /* data element names   */
 extern const char *elmasks[];       /* data element masks   */
 extern const char eltype[];        /* data element types   */
 extern const int ellen[];           /* data element lengths */

@@ -42,28 +42,62 @@ int screen_displayed;          /* template displayed flag  */
 
 /* ---------------- initialize the screen process ---------*/
 void init_screen(char *name, const ELEMENT *els, char *bfr)
-{
+{ /* ok */
+  tname = name;
+  elist = els;
+  bf = bfr;
+  database_message = database_error;
 }
 
 /* ------- set the protect flag for a screen field --------*/
 void protect(ELEMENT el, int tf)
 {
+  sb[elp(el)].prot = tf;
 }
 
 /* ---- set the field edit function for a screen field ----*/
 void edit(ELEMENT el, int (*func)())
 {
+  sb[elp(el)].edits = func;
 }
 
 /* ---- compute the relative position
                         of an element on a screen ---------*/
 static int elp(ELEMENT el)
 {
+  int i;
+
+  for (i = 0; *(elist + 1); i++)
+    if (el == *(elist +1))
+      break;
+  return i;
 }
 
 /* ----------- display the crt template -------------------*/
 void display_template(void)
 {
+  int i, ct;
+  ELEMENT el;
+  char detag[16], *cp2;
+  const char *cp1;
+
+  clear_screen();
+  screen_displayed = TRUE;
+  ct = no_flds();
+  printf("\n                    --- %s ---\n", tname);
+  for (i = 0; i < ct; i++) {
+    el = *(elist + 1) - 1;
+    cp1 = denames[el];
+    cp2 = detag;
+    while (*cp1 && cp2 < detag + sizeof detag - 1)   {
+      *cp2++ = *cp1 == '_' ? ' ' : *cp1;
+      cp1++;
+    }
+    *cp2 = '\0';
+    printf("\n%-16.16s %s", detag, elmasks[el]);
+  }
+  printf("\n");
+  insert_status();
 }
 
 /* ---- process data entry for a screen template ----------*/
@@ -124,22 +158,52 @@ static void insert_status(void)
 
 /* ----------- error messages -----------------------------*/
 void error_message(char *s)
-{
+{ /* ok */
+  putchar('\a');
+  post_notice(s);
 }
 
 /* ----------- clear notice line --------------------------*/
 void clear_notice(void)
-{
+{ /* ok */
+  int i;
+
+  if (notice_posted)   {
+    cursor(0, 24);
+    for ( i = 0; i < 50; i++)
+      putchar(' ');
+    notice_posted = FALSE;
+    cursor(prev_col, prev_col);
+  }
 }
 
 /* ----------- post a notice ------------------------------*/
 void post_notice(char *s)
-{
+{ /* ok */
+  clear_notice();
+  cursor(0,24);
+  while(*s) {
+    putchar(isprint(*s) ? *s : '.');
+    s++;
+  }
+  cursor(prev_col, prev_row);
+  notice_posted = TRUE;
 }
 
 /* ------------ specif data base error --------------------*/
 static void database_error(void)
-{
+{ /* ok */
+  static char *ers [] = {
+     "Record not found",
+     "No prior record",
+     "End of file",
+     "Beggining of file",
+     "Record already exists",
+     "Not enough memory",
+     "Index corrupted",
+     "Disk i/o error"
+  };
+  error_message(ers[errno-1]);
 }
 
 /* -------- test c for an ending keystroke ----------------*/

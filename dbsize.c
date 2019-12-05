@@ -1,4 +1,4 @@
-/* --------------------- dbsize.c ------------------------- */
+/* -- pg 186 ----------- dbsize.c ------------------------- */
 /* Compute the character size of a database */
 
 #include <stdio.h>

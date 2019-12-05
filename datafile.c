@@ -1,4 +1,4 @@
-/* -------------- datafile.c ----------------------- */
+/* -- pg 142 ---- datafile.c ----------------------------- */
 
 #include <stdio.h>
 #include <errno.h>
@@ -13,10 +13,10 @@ static FILE *fp[MXFILS];
 FHEADER fh[MXFILS];
 
 /* ---------- crete a file ------------------------- */
-void file_create(char *name, int len)
+void file_create(char *name /* file name */, int len /* record lenght */)
 {
-    FILE *fp;
-    FHEADER hd;
+  FILE *fp;         
+  FHEADER hd;       
 
     remove(name);
     fp = fopen(name, "wb");
@@ -28,7 +28,7 @@ void file_create(char *name, int len)
 }
 
 /* ---------- open a file ------------------------- */
-int file_open(char *name)
+int file_open(char *name /* filename */)
 {
     int fno;
 
@@ -45,7 +45,7 @@ int file_open(char *name)
 }
 
 /* ---------- close a file ------------------------- */
-void file_close(int fno)
+void file_close(int fno /* logical file handle */)
 {
     fseek(fp[fno], 0L, SEEK_SET);
     fwrite((char *) &fh[fno], sizeof(FHEADER), 1, fp[fno]);
@@ -54,7 +54,7 @@ void file_close(int fno)
 }
 
 /* ---------- create a new record -------------------- */
-RPTR new_record(int fno, void *bf)
+RPTR new_record(int fno /* logical file handle */, void *bf /* record buffer */)
 {
     RPTR rcdno;
     FHEAER *c;
@@ -76,7 +76,7 @@ RPTR new_record(int fno, void *bf)
 }
 
 /* ---------- retrieve a record -------------------- */
-int get_record(int fno, RPTR rcdno, void *bf)
+int get_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */, void *bf /* record buffer */)
 {
     if (rcdno >= fh[fno].next_record)
         return ERROR;
@@ -87,7 +87,7 @@ int get_record(int fno, RPTR rcdno, void *bf)
 }
 
 /* ---------- retrieve a record -------------------- */   
-int put_record(int fno, RPTR rcdno, void *br)
+int put_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */, void *bf /* record buffer */)
 {
     if (rcdno >= fh[fno].next_record)
         return ERROR;
@@ -97,7 +97,7 @@ int put_record(int fno, RPTR rcdno, void *br)
     return OK;
 }
 
-int delete_record(int fno, RPTR rcdno)
+int delete_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */)
 {
     FHEADR *bf;
 

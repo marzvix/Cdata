@@ -1,4 +1,4 @@
-# -----------------------------------------------------------
+# -- pg 271 -------------------------------------------------
 # GCC Makefile to build Cdata into an application
 # -----------------------------------------------------------
 
@@ -38,33 +38,44 @@ LIBPATH = $(GCCPATH)/lib
 # 	$(CC) $(LDFLAGS) $< $(LOADLIBES) $(LDLIBS)
 # 	gcc $< -o $@ -l$(LIBS)
 
-all: 	cdata.lib \
-	schema
+all: 	cdata.lib cbs schema dbinit invoice 
 
 exenotyet: qd \
 	ds \
 	index \
 	dbsize \
-	dbinit \
 	posttime \
 	payments \
-	invoice \
-	roster
+	sort \
+	roster \
+
+
+.PHONY: tests
+tests:  test_screen
+
+test_screen.o: test_screen.c screen.c screen.h sys.c sys.h
+
+test_screen: test_screen.o screen.o sys.o cbs.o cdata.o -lncurses
+
+include  cbs.mk
 
 # -----------------------------------------------------------
 # cdata.lib
 # -----------------------------------------------------------
 cdata.lib: sys.o \
 	cdata.o \
-	screen.o
+	screen.o \
+	btree.o \
+	filename.o
+	ar rcs $@ $^
+
 
 onotyet: elist.o \
-	btree.o \
 	datafile.o \
 	dblist.o \
 	clist.o \
-	filename.o \
 	sort.o \
+
 
 ellist.o: ellist.c cdata.h
 
@@ -95,9 +106,6 @@ schema: schema.o
 
 schema.o: schema.c
 
-$(CDATA_APPL).c : $(CDATA_APPL).sch schema.exe
-	schema $(CDATA_APPL)
-
 # -----------------------------------------------------------
 # Cdata utility programs
 # -----------------------------------------------------------
@@ -112,6 +120,7 @@ dbsize: dbsize.o $(CDATA_APPL).o cdata.lib
 
 dbinit: dbinit.o $(CDATA_APPL).o cdata.lib
 
+invoice: invoice.o  $(CDATA_APPL).o cdata.lib -lncurses
 
 qd.o: qd.c cdata.h screen.h keys.h
 
@@ -119,10 +128,9 @@ ds.o: ds.c cdata.h
 
 index.o: index.c  cdata.h
 
-dbsize.o: dbsize.c cdata.h bgree.h datafile.h
+dbsize.o: dbsize.c cdata.h btree.h datafile.h
 
 dbinit.o: dbinit.c cdata.h datafile.h
-
 
 # -----------------------------------------------------------
 # application-specific (CBS) programs
@@ -130,19 +138,13 @@ dbinit.o: dbinit.c cdata.h datafile.h
 
 posttime  : posttime.o cbs.o cdata.lib
 payments  : payments.o cbs.o cdata.lib
-invoice	  : invoice.o  cbs.o cdata.lib
+invoice	  : invoice.o  cbs.o cdata.lib  -lncurses
 roster	  : roster.o   cbs.o cdata.lib
 
 posttime.o : posttime.c cbs.h screen.h keys.h
 payments.o : payments.c cbs.h screen.h keys.h
 invoice.o  : invoice.c  cbs.h
 roster.o   : roster.c   cbs.h sort.h
-
-# .PHONY: cbs
-# cbs: schema cbs.c cbs.h cdata.h
-
-# cbs.c cbs.h: cbs.sch cdata.h
-# 	./schema cbs
 
 run:
 	./sys
