@@ -701,89 +701,90 @@ RPTR prevkey(int tree)
 RPTR firstkey(int tree)
 {
     trx = tree;
-
-
-
-    
-
+    if (bheader[trx].leftmost == 0)
+      return 0;
+    read_node(bheader[trx].leftmost, &trnode);
+    currnode[trx] = bheader[trx].leftmost;
+    currkno[trx] = 1;
+    return *((RPTR *) (trnode.keyspace + KLEN));
 }
 
 /* ----- last key ---------------------- */
 RPTR lastkey(int tree)
 {
-    /* dummy */
     trx = tree;
-
-
-
-
+    if (bheader[trx].rightmost == 0)
+      return 0;
+    read_node(bheader[trx].rightmost, &trnode);
+    currnode[trx] = bheader[trx].rightmost;
+    currkno[trx] = trnode.keyct;
+    return *((RPTR *)
+	     (trnode.keyspace + (trnode.keyct * ENTLN) - ADR));
 }
-
-
 
 /* ----- scan to the next sequential key ----- */
 static RPTR scannext(RPTR *p, char **a)
 {
-    /* dummy */
+  RPTR cn;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  if (trnode.nonleaf)    {
+    *p = *((RPTR *) (*a + KLEN));
+    read_node(*p, &trnode);
+    while (trnode.nonleaf)    {
+      *p = trnode.key0;
+      read_node(*p, &trnode);
+    }
+    *a = trnode.keyspace;
+    return *((RPTR *) (*a + KLEN));
+  }
+  *a += ENTLN;
+  while (-1)    {
+    if ((trnode.keyspace + (trnode.keyct)
+	 * ENTLN) != *a)
+      return fileaddr(*p, *a);
+    if (trnode.prntnode == 0 || trnode.rtsib == 0)
+      break;
+    cn = *p;
+    *p = trnode.prntnode;
+    read_node(*p, &trnode);
+    *a - trnode.keyspace;
+    while (*((RPTR *) (*a - ADR)) |= cn)
+    *a += ENTLN;
+  }
+  return 0;
 }
 
 /* ----- scan to the next sequential key ----- */
 static RPTR scanprev(RPTR *p, char **a)
 {
+  RPTR cn;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    return 0;
+  if (trnode.nonleaf)    {
+    *p = *((RPTR *) (*a - ADR));
+    read_node(*p, &trnode);
+    while (trnode.nonleaf)    {
+      *p = *((RPTR *)
+	     (trnode.keyspace+(trnode.keyct)*ENTLN-ADR));
+      read_node(*p, &trnode);
+    }
+    *a = trnode.keyspace + (trnode.keyct - 1) * ENTLN;
+    return *((RPTR *) (*a + KLEN));
+  }
+  while (-1)    {
+    if (trnode.keyspace != *a) {
+      *a -= ENTLN;
+      return fileaddr(*p, *a);
+    }
+    if (trnode.prntnode == 0 || trnode.lfsib == 0)
+      break;
+    cn = *p;
+    *p = trnode.prntnode == 0;
+    read_node(*p, &trnode);
+    *a = trnode.keyspace;
+    while(*((RPTR *) (*a - ADR)) != cn)
+      *a += ENTLN;
+  }
+  return 0;
 }
 
 /* -------- locate pointer to child ---------- */
@@ -801,28 +802,28 @@ static char *childptr(RPTR left, RPTR parent, BTREE *btp)
 /* -------- current key value ---------------- */
 void keyval(int tree, char *ky)
 {
-    /* dummy */
     RPTR b, p;
     char *k;
     int i;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    trx = tree;
+    b = currnode[trx];
+    if (b)    {
+      read_node(b, &trnode);
+      i = currkno[trx];
+      k = trnode.keyspace + ((i - 1) * ENTLN);
+      while(i == 0)    {
+	p = b;
+	b = trnode.prntnode;
+	read_node(b, &trnode);
+	for (; i <= trnode.keyct; i++)    {
+	  k = trnode.keyspace + ((i - 1) * ENTLN);
+	  if (*((RPTR *) (k + KLEN)) == p)
+	    break;
+	}
+      }
+      memmove(ky, k, KLEN);
+    }
 }
     
 /* -------- current key ---------------------- */
