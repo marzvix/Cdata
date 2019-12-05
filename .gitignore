@@ -7,3 +7,4 @@ attic/**.*
 **/*.o
 **/*.exe
 **/*.stackdump
+**/*.lib
