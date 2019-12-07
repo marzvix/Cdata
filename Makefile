@@ -38,12 +38,9 @@ LIBPATH = $(GCCPATH)/lib
 # 	$(CC) $(LDFLAGS) $< $(LOADLIBES) $(LDLIBS)
 # 	gcc $< -o $@ -l$(LIBS)
 
-all: 	cdata.lib cbs schema dbinit invoice 
+all: 	cdata.lib schema dbinit invoice qd ds index
 
-exenotyet: qd \
-	ds \
-	index \
-	dbsize \
+exenotyet:\
 	posttime \
 	payments \
 	sort \
@@ -57,25 +54,25 @@ test_screen.o: test_screen.c screen.c screen.h sys.c sys.h
 
 test_screen: test_screen.o screen.o sys.o cbs.o cdata.o -lncurses
 
-include  cbs.mk
+#include  cbs.mk
 
 # -----------------------------------------------------------
 # cdata.lib
 # -----------------------------------------------------------
 cdata.lib: sys.o \
+	dblist.o \
 	cdata.o \
 	screen.o \
 	btree.o \
-	filename.o
+	ellist.o \
+	datafile.o \
+	clist.o \
+	filename.o	
 	ar rcs $@ $^
 
+onotyet: sort.o
 
-onotyet: elist.o \
-	datafile.o \
-	dblist.o \
-	clist.o \
-	sort.o \
-
+cbs.o: cbs.c cbs.h 
 
 ellist.o: ellist.c cdata.h
 
@@ -89,7 +86,7 @@ datafile.o: datafile.c cdata.h datafile.h
 
 dblist.o: dblist.c cdata.h
 
-clist.o: clist.c clist.h
+clist.o: clist.c 
 
 dbsize: dbsize.c btree.o
 
@@ -98,6 +95,11 @@ sort.o: sort.c cdata.h sort.h
 sys.o: sys.c cdata.h sys.h
 
 filename.o: filename.c cdata.h
+
+qd.o: qd.c cdata.h screen.h keys.h
+
+ds.o: ds.c cdata.h
+
 
 # -----------------------------------------------------------
 # The data base schema
@@ -110,21 +112,17 @@ schema.o: schema.c
 # Cdata utility programs
 # -----------------------------------------------------------
 
-qd: qd.o $(CDATA_APPL).o cdata.lib
-
-ds: ds.o $(CDATA_APPL).o cdata.lib
-
 index: index.o $(CDATA_APPL).o cdata.lib
 
-dbsize: dbsize.o $(CDATA_APPL).o cdata.lib
+dbsize: dbsize.o $(CDATA_APPL).o cdata.lib -lncurses
 
 dbinit: dbinit.o $(CDATA_APPL).o cdata.lib
 
 invoice: invoice.o  $(CDATA_APPL).o cdata.lib -lncurses
 
-qd.o: qd.c cdata.h screen.h keys.h
+qd: qd.o  $(CDATA_APPL).o cdata.lib -lncurses
 
-ds.o: ds.c cdata.h
+ds: ds.o  cdata.lib -lncurses
 
 index.o: index.c  cdata.h
 
@@ -151,7 +149,9 @@ run:
 
 clean:
 	$(RM) *~
+	$(RM) *.o
 	$(RM) *.exe
+	$(RM) *.lib
 	$(RM) *.stackdump
 	$(RM) schema.exe
 	$(RM) schema.o

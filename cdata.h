@@ -34,7 +34,7 @@ typedef int ELEMENT;
 /* ---------- schema as built for the application --------- */
 extern const char *dbfiles[];       /* file names           */
 extern const char *denames[];       /* data element names   */
-extern const char *elmasks[];       /* data element masks   */
+extern const char *elmask[];       /* data element masks   */
 extern const char eltype[];        /* data element types   */
 extern const int ellen[];           /* data element lengths */
 extern const ELEMENT *file_ele[];   /* file data elements   */
@@ -64,13 +64,13 @@ int epos(ELEMENT, const ELEMENT *);
 void rcd_fill(const void *, void *, const ELEMENT *,
               const ELEMENT *);
 
-/* ------ functions user by Cdata utility programs ------ */
+/* ------ functions used by Cdata utility programs ------ */
 void build_index(char *, DBFILE);
 int add_indexes(DBFILE, void *, RPTR);
 DBFILE filename(char *);
 void name_cvt(char *, char *);
 int ellist(int, char **, ELEMENT *);
-void clist(FILE *, const char *, const ELEMENT *,
+void clist(FILE *, const ELEMENT *,  const ELEMENT *,
             void *, const char *);
 void test_eop(FILE *, const char *, const ELEMENT *);
 void dblist(FILE *, DBFILE, int, const ELEMENT *);

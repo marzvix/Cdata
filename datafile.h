@@ -11,7 +11,7 @@ int delete_record(int, RPTR);
 
 /* -------- file header --------------- */
 typedef struct fhdr {
-    RPTR firs_record;
+    RPTR first_record;
     RPTR next_record;
     int record_length;
 } FHEADER;

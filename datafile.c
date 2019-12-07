@@ -23,7 +23,7 @@ void file_create(char *name /* file name */, int len /* record lenght */)
     hd.next_record = 1;
     hd.first_record = 0;
     hd.record_length = len;
-    fwrite((char *) &h, sizeof hd, 1, fp);
+    fwrite((char *) &hd, sizeof hd, 1, fp);
     fclose(fp);
 }
 
@@ -57,7 +57,7 @@ void file_close(int fno /* logical file handle */)
 RPTR new_record(int fno /* logical file handle */, void *bf /* record buffer */)
 {
     RPTR rcdno;
-    FHEAER *c;
+    FHEADER *c;
 
     if (fh[fno].first_record)   {
         rcdno = fh[fno].first_record;
@@ -99,7 +99,7 @@ int put_record(int fno /* logical file handle */, RPTR rcdno /* logical record n
 
 int delete_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */)
 {
-    FHEADR *bf;
+    FHEADER *bf;
 
     if (rcdno >= fh[fno].next_record)
         return ERROR;

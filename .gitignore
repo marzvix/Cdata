@@ -8,3 +8,5 @@ attic/**.*
 **/*.exe
 **/*.stackdump
 **/*.lib
+**/*.x??
+**/*.dat

@@ -28,7 +28,7 @@ DBFILE filename(char *fn)
 }
 
 /* ---------- convert a name to upper case -------------- */
-void name_cv(char *c2, char *c1)
+void name_cvt(char *c2, char *c1)
 {
   while (*c1) {
     *c2 = toupper(*c1);
