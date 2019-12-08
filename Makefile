@@ -38,13 +38,10 @@ LIBPATH = $(GCCPATH)/lib
 # 	$(CC) $(LDFLAGS) $< $(LOADLIBES) $(LDLIBS)
 # 	gcc $< -o $@ -l$(LIBS)
 
-all: 	cdata.lib schema dbinit invoice qd ds index
+all: 	cdata.lib schema dbinit invoice qd ds index sort roster \
+	posttime payments
 
-exenotyet:\
-	posttime \
-	payments \
-	sort \
-	roster \
+exenotyet: 
 
 
 .PHONY: tests
@@ -67,10 +64,9 @@ cdata.lib: sys.o \
 	ellist.o \
 	datafile.o \
 	clist.o \
+	sort.o \
 	filename.o	
 	ar rcs $@ $^
-
-onotyet: sort.o
 
 cbs.o: cbs.c cbs.h 
 
@@ -134,10 +130,10 @@ dbinit.o: dbinit.c cdata.h datafile.h
 # application-specific (CBS) programs
 # -----------------------------------------------------------
 
-posttime  : posttime.o cbs.o cdata.lib
-payments  : payments.o cbs.o cdata.lib
+posttime  : posttime.o cbs.o cdata.lib  -lncurses
+payments  : payments.o cbs.o cdata.lib  -lncurses
 invoice	  : invoice.o  cbs.o cdata.lib  -lncurses
-roster	  : roster.o   cbs.o cdata.lib
+roster	  : roster.o   cbs.o cdata.lib  -lncurses
 
 posttime.o : posttime.c cbs.h screen.h keys.h
 payments.o : payments.c cbs.h screen.h keys.h

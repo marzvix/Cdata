@@ -130,5 +130,3 @@ static int hdlen(ELEMENT el)
     strlen(denames [el]) :
     strlen(elmask [el]);
 }
-
-
