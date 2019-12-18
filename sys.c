@@ -24,9 +24,31 @@
 #if COMPILER == TURBOC
 #define ci() getch()
 #endif
+#if COMPILER == GCC
+#include <stdlib.h>
+/*
+   nesse caso, deve-se definir a disciplina do 
+   terminal para "raw" e retornar depois 
+   para "cooked" após "pegar" o caractere"
+   Tem forma mais chique de fazer isso.
+   Mas fica para melhorias. (TODO)
+*/
+
+int getch()
+{
+  int ch;
+  system("stty raw");
+  ch = getchar();
+  system("stty cooked");
+  return ch;
+}
+
+#define ci()  getch()
+
+#endif
 
 /* ------------- get a keyboard character ----------------- */
-int get_char()
+int get_char(void)
 {
  	int c;
 
@@ -48,8 +70,7 @@ int get_char()
 }
 
 /* -------- write a character to the screen ------------ */
-void put_char(c)
-int c;
+void put_char(int c)
 {
 	switch (c)	{
 		case FWD:	printf("\033[C");
@@ -62,8 +83,7 @@ int c;
 }
 
 /* ------------- set the cursor position -------------- */
-void cursor(x,y)
-int x, y;
+void cursor(int x, int y)
 {
 	printf("\033[%02d;%02dH",y+1, x+1);
 	fflush(stdout);
@@ -71,11 +91,9 @@ int x, y;
 
 /* ------------------- clear the screen ------------------- */
 int screen_displayed = 0;
-void clear_screen()
+void clear_screen(void)
 {
 	screen_displayed = 0;
 	printf("\033[2J");
 	fflush(stdout);
 }
-
-
