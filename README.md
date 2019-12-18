@@ -1,4 +1,11 @@
-qua, 18 de dez de 2019 13:14:28
+qua, 18 de dez de 2019 14:00:43
+
+Fiz o merge final.
+Agora sigo daqui com os fontes originais e corretos para
+conversao e testes com o cygwin.
+
+
+Qua, 18 de dez de 2019 13:14:28
 
 Este BRANCH DOS foi criado hoje, mas estava sem controle
 do git desde do ultimo dia 05.

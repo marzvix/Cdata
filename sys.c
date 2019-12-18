@@ -1,53 +1,81 @@
-/* -- pg 183 ---- sys.c ---------------------------- */
-
+/* ----------------- sys.c -------------------- */
 #include <stdio.h>
-#include <conio.h>
-#include "keys.h"
-#include "sys.h"
 #include "cdata.h"
+#include "keys.h"
 
-/* =======================================================
-   The following functions are keyboard and screen drivers
-   for the pc with ANSI.SYS installed
-   ======================================================= */
+#if COMPILER == AZTEC
+#define ci() scr_getc()
+#endif
+#if COMPILER == DATALIGHT
+#define ci() getch()
+#endif
+#if COMPILER == ECOC
+#define ci() getch()
+#endif
+#if COMPILER == LATTICE
+#define ci() getch()
+#endif
+#if COMPILER == LETSC
+#define ci() getcnb()
+#endif
+#if COMPILER == MICROSOFT
+#define ci() getch()
+#endif
+#if COMPILER == TURBOC
+#define ci() getch()
+#endif
 
-extern int FieldChar, screen_displayed;
-
-/* -------- write a character to the screen -------------- */
-void put_char(int c)
+/* ------------- get a keyboard character ----------------- */
+int get_char()
 {
-  switch (c) {
-	  case FWD: printf("\033[C");
-				break;
-	  case UP:	printf("\033[A");
-				break;
-	  default:  putchar(c == ' ' ? FieldChar : c);
-  }
-  fflush(stdout);
+ 	int c;
+
+#if COMPILER == CI_C86
+	c = key_getc();
+	if ((c & 255) == 0)
+		c = (c >> 8) | 128;
+#else
+#if COMPILER == WIZARD
+	c = bioskey(0);
+	if ((c & 255) == 0)
+		c = (c >> 8) | 128;
+#else
+	if (!(c = ci()))
+		c = ci() | 128;
+#endif
+#endif
+	return c & 255;
 }
 
-/* -------------- set the cursor position -----------------*/
-void cursor(int x, int y)
+/* -------- write a character to the screen ------------ */
+void put_char(c)
+int c;
+{
+	switch (c)	{
+		case FWD:	printf("\033[C");
+					break;
+		case UP:	printf("\033[A");
+					break;
+		default:	putchar(c);
+	}
+	fflush(stdout);
+}
+
+/* ------------- set the cursor position -------------- */
+void cursor(x,y)
+int x, y;
 {
 	printf("\033[%02d;%02dH",y+1, x+1);
 	fflush(stdout);
 }
 
-/* -------------- clear the screen ------------------------*/
-void clear_screen(void)
+/* ------------------- clear the screen ------------------- */
+int screen_displayed = 0;
+void clear_screen()
 {
 	screen_displayed = 0;
 	printf("\033[2J");
 	fflush(stdout);
 }
 
-/* ----- get a keyboard character ----- */
-
-int get_char(void)
-{
-  int c;
-
-  if ((c = getch()) == 0)
-	c = getch() | 128;
-  return c & 255;
-}
+
