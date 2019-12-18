@@ -18,7 +18,7 @@ void main(int argc, char *argv[])
     exit(1);
   }
   if (strcmp("all", argv [1]) == 0)  /* index all */
-    for (f = 0; dbfiles [f]; f++) /* put files in list */
+    for (f = 0; dbfiles [f]; f++)    /* put files in list */
       fs [f] = f;
   else if ((*fs = filename(argv[1])) == ERROR)
     exit(1);
@@ -28,13 +28,16 @@ void main(int argc, char *argv[])
      in the data base files being indexed */
   for (i = 0; (f = fs [i]) != (-1); i++)
     build_index(path, f);
-  /* Opend the data base files. */
+  /* Open the data base files. */
   db_open(path, fs);
   for (i=0; (f = fs [i]) != (-1); i++)    {
     printf("\nIndexing %s", dbfiles [f]);
     if ((bf = malloc(rlen(f))) != NULL)   {
-      while (seqrcd(f, bf) != ERROR)
+      puts("longs");
+      while (seqrcd(f, bf) != ERROR)    {
+	puts("lengs");
 	add_indexes(f, bf, curr_a [f]);
+      }
       free(bf);
     }
   }

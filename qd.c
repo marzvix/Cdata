@@ -1,4 +1,4 @@
-/* ---------------- qd.c --------------------------------- */
+/* -- pg 191 ------ qd.c --------------------------------- */
 /* A query program.  Enter the name of the data base file and
  * (optionally) a list of data elements. A screen is buit
  * and the file is update based upon the data entered.
@@ -73,60 +73,67 @@ static void query(void)
   set_trap();
   while (term != ESC) {
     term = data_entry();
+    //   cursor(12,24); printf("DEBUG: ESC(%x) term %d %x", ESC, term, term);
     switch (term)    {
-      /* ------------ GO ---------------- */
+        /* ------------ GO ---------------- */
     case F1: rcdout();
-	       break;
-	       /* ------- first record ----------- */
-    case HOME: rcdout();
-      if (first_rcd(file, 1, rb) == ERROR)
-	post_notice("Empty file");
-      else
-	rcdin();
+      cursor(12,24); printf("DEBUG: F1(%x): term %d %x", F1, term, term);
       break;
-      /* ------- first record ----------- */
-    case END: rcdout();
-      if (last_rcd(file, 1, rb) == ERROR)
-	post_notice("Empty file");
-      else
-	rcdin();
-      break;
-      /* ------- previous record -------- */
-    case PGUP:  rcdout();
-      if (prev_rcd(file, 1, rb) == ERROR) {
-	post_notice("Beggining of file");
-	if (first_rcd(file, 1, rb) ==
-	    ERROR)   {
-	  post_notice("Empty file");
-	  break;
-	}
-      }
-      rcdin();
-      break;
-      /* ------- next record ------------ */
-    case PGDN:  rcdout();
-      if (next_rcd(file, 1, rb) == ERROR)    {
-	post_notice("At end of file");
-	if (last_rcd(file, 1, rb) ==
-	    ERROR)    {
-	  post_notice("Empty file");
-	  break;
-	}
-      }
-      rcdin();
-      break;
-      /* ------- delete record ------------ */
-    case F7:  if (spaces(rb)==0) {
+        /* ------- first record ----------- */
+      case HOME: rcdout();
+	// cursor(12,24); printf("DEBUG:Home(%x): term %d %x", HOME, term, term);
+        if (first_rcd(file, 1, rb) == ERROR)
+      	post_notice("Empty file");
+        else
+      	rcdin();
+        break;
+        /* ------- first record ----------- */
+      case END: rcdout();
+	//	cursor(12,24); printf("DEBUG:End(%x): term %d %x", END, term, term);
+        if (last_rcd(file, 1, rb) == ERROR)
+      	post_notice("Empty file");
+        else
+      	rcdin();
+        break;
+        /* ------- previous record -------- */
+      case PGUP:  rcdout();
+	//cursor(12,24); printf("DEBUG:PGUP(%x): term %d %x", PGUP, term, term);
+        if (prev_rcd(file, 1, rb) == ERROR) {
+      	post_notice("Beggining of file");
+      	if (first_rcd(file, 1, rb) == ERROR)   {
+      	  post_notice("Empty file");
+      	  break;
+      	}
+        }
+        rcdin();
+        break;
+        /* ------- next record ------------ */
+      case PGDN:  rcdout();
+    	// cursor(12,24); printf("DEBUG:PGDN(%x): term %d %x", PGDN, term, term);
+	if (next_rcd(file, 1, rb) == ERROR)    {
+      	post_notice("At end of file");
+      	if (last_rcd(file, 1, rb) ==
+      	    ERROR)    {
+      	  post_notice("Empty file");
+      	  break;
+      	}
+        }
+        rcdin();
+        break;
+        /* ------- delete record ------------ */
+      case F7:  if (spaces(rb)==0) {
+	  // cursor(12,24); printf("DEBUG:F7(%x): term %d %x", F7, term, term);
 	post_notice("Verify w/F7");
-	if (get_char() == F7)    {
-	  del_rcd(file);
-	  clear_record();
-	}
-	clear_notice();
-      }
-      break;
+      	if (get_char() == F7)    {
+      	  del_rcd(file);
+      	  clear_record();
+      	}
+      	clear_notice();
+        }
+        break;
     case ESC: if (spaces(sc))
-	break;
+      	break;
+      // cursor(12,24); printf("DEBUG:ESC(%x): term %d %x", ESC, term, term);      
       clear_record();
       term = 0;
       break;
@@ -153,7 +160,7 @@ static void rcdin(void)
   int i = 0;
 
   if (empty(rb, rlen(file)) == 0) {
-    rcd_fill(sc, rb, els, file_ele[file]);
+    rcd_fill(rb, sc, file_ele[file], els);
     memmove(hb, rb, rlen(file));
     existing_record = TRUE;
     while (index_ele [file] [0] [i])
@@ -208,12 +215,12 @@ static void set_trap(void)
 {
   int i = 0;
 
-  while (index_ele [file] [0] [1])
+  while (index_ele [file] [0] [i])
     i++;
   edit(index_ele [file] [0] [i-1], key_entry);
 }
 
-/* --- come here whe the primary key has been enterd ---- */
+/* --- come here when the primary key has been enterd ---- */
 static int key_entry(char *s)
 {
   char key [MXKEYLEN];

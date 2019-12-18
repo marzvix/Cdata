@@ -354,7 +354,7 @@ static int comp(const void *a, const void *b)
   for (i = 0; i < MAXSORTS; i++)    {
     if (f_pos[i] == -1)
       break;
-    if ((k = strcasecmp((*(char **)a)+f_pos[i],
+    if ((k = stricmp((*(char **)a)+f_pos[i],
 			(*(char **)b)+f_pos[i])) != 0)
       return (!sort_direction) ? -k : k;
   }

@@ -42,7 +42,7 @@ void clist(FILE *fd,const ELEMENT *fl, const ELEMENT *pl,
     cp = ln;
     if (*pl)    {
       putc('\n', fd);
-      putc('\n', fd);
+      putc('\r', fd);
       lct++;
     }
     while (*pl) {
@@ -104,7 +104,7 @@ static void oflow(FILE *fd, const char *fn, const ELEMENT *pl)
   while (*pl)    {
     width = hdlen(*pl);
     ow += width + 1;
-    if (ow >- clip)
+    if (ow >= clip)
       break;
     sprintf(msk, "%%-%d.%ds ", width, width);
     fprintf(fd, msk, denames [(*pl++) - 1]);

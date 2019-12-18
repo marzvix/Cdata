@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include "cdata.h"
 
 int ellist(int count, char *names[], ELEMENT *list)

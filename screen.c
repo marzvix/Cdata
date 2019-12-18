@@ -9,7 +9,7 @@
 #include "screen.h"
 #include "keys.h"
 
-int FieldChar = '_';             /* field filler character */
+char FieldChar = '_';             /* field filler character */
 
 /* ----------- prototypes -------------------------------- */
 static int elp(ELEMENT);
@@ -42,7 +42,7 @@ int screen_displayed;          /* template displayed flag  */
 
 /* ---------------- initialize the screen process ---------*/
 void init_screen(char *name, const ELEMENT *els, char *bfr)
-{ /* ok */
+{
   tname = name;
   elist = els;
   bf = bfr;
@@ -67,8 +67,8 @@ static int elp(ELEMENT el)
 {
   int i;
 
-  for (i = 0; *(elist + 1); i++)
-    if (el == *(elist +1))
+  for (i = 0; *(elist + i); i++)
+    if (el == *(elist + i))
       break;
   return i;
 }
@@ -86,7 +86,7 @@ void display_template(void)
   ct = no_flds();
   printf("\n                    --- %s ---\n", tname);
   for (i = 0; i < ct; i++) {
-    el = *(elist + 1) - 1;
+    el = *(elist + i) - 1;
     cp1 = denames[el];
     cp2 = detag;
     while (*cp1 && cp2 < detag + sizeof detag - 1)   {
@@ -97,7 +97,7 @@ void display_template(void)
     printf("\n%-16.16s %s", detag, elmask[el]);
   }
   printf("\n");
-  insert_status();
+  insert_status(); 
 }
 
 /* ---- process data entry for a screen template ----------*/
@@ -115,7 +115,7 @@ int data_entry(void)
   field_ctr = no_flds();
   /* ---- collect data from keyboard into screen ---- */
   while (done == FALSE)    {
-    bfptr = bf + epos(elist[field_ptr], elist);
+    bfptr = bf + epos(elist[field_ptr], elist);;
     el = *(elist + field_ptr) - 1;
     validfunct = sb[field_ptr].edits;
     data_coord(el + 1);
@@ -142,8 +142,8 @@ int data_entry(void)
 	break;
       case UP:               /* cursor up key */
       case BS:               /* back space */
-	if (field_ptr+1 == 0)
-	  field_ptr = field_ctr -1;
+	if (field_ptr == 0)
+	  field_ptr = field_ctr - 1;
 	else
 	  field_ptr--;
 	break;
@@ -177,12 +177,12 @@ static int read_element
                (const char type, const char *msk, char *bfr)
 {
   const char *mask = msk;
-  char *buff = bfr;
+  char *buff = bf;
   int done = FALSE, c, column = prev_col;
 
   while (*mask != FieldChar)    {
     prev_col++;
-    mask;
+    mask++;
   }
   while (TRUE)    {
     cursor(prev_col, prev_row);
@@ -240,21 +240,21 @@ static int read_element
 	break;
       }
       if (type != 'A' && !isdigit(c))    {
-	error_message("Numbers only");
-	break;
+      	error_message("Numbers only");
+      	break;
       }
       if (insert_mode)    {
-	memmove(buff+1, buff, strlen(buff)-1);
-	disp_element(buff,mask);
+      	memmove(buff+1, buff, strlen(buff)-1);
+      	disp_element(buff,mask);
       }
       *buff++ = c;
       put_char(c);
       do {
-	prev_col++;
-	mask++;
+      	prev_col++;
+      	mask++;
       } while (*mask && *mask != FieldChar);
       if (!*mask)
-	c = FWD;
+      	c = FWD;
       break;
     }
     if (!*mask)
@@ -376,7 +376,7 @@ void put_field(ELEMENT el)
 static void disp_element(char *b, const char *msk)
 {
   while (*msk)    {
-    int c = *msk != FieldChar ? *msk : *b++;
+    char c = *msk != FieldChar ? ' ' : *b++;
     put_char(c);
     msk++;
   }
@@ -393,14 +393,14 @@ static void insert_status(void)
 
 /* ----------- error messages -----------------------------*/
 void error_message(char *s)
-{ /* ok */
+{ 
   putchar('\a');
   post_notice(s);
 }
 
 /* ----------- clear notice line --------------------------*/
 void clear_notice(void)
-{ /* ok */
+{
   int i;
 
   if (notice_posted)   {
@@ -408,13 +408,13 @@ void clear_notice(void)
     for ( i = 0; i < 50; i++)
       putchar(' ');
     notice_posted = FALSE;
-    cursor(prev_col, prev_col);
+    cursor(prev_col, prev_row);
   }
 }
 
 /* ----------- post a notice ------------------------------*/
 void post_notice(char *s)
-{ /* ok */
+{
   clear_notice();
   cursor(0,24);
   while(*s) {
@@ -427,7 +427,7 @@ void post_notice(char *s)
 
 /* ------------ specif data base error --------------------*/
 static void database_error(void)
-{ /* ok */
+{
   static char *ers [] = {
      "Record not found",
      "No prior record",
@@ -463,9 +463,8 @@ static int endstroke(int c)
   case HOME:
   case END:
 
-  case UP:        /* cursor movmente keys */
+  case UP:        /* cursor movement keys */
   case DN:
-
     
   case '\r':      /* standard ASCII vales */
   case '\n':
@@ -474,6 +473,5 @@ static int endstroke(int c)
     return TRUE;
   default:
     return FALSE;
-    
   }
 }

@@ -41,7 +41,7 @@ void db_open(const char *path, const DBFILE *fl)
     }
     strcpy(dbpath, path);
     while(*fl != -1)    {
-        sprintf(fnm, "s%.8s.dat", path, dbfiles [*fl]);
+        sprintf(fnm, "%s%.8s.dat", path, dbfiles [*fl]);
         curr_fd [*fl] = file_open(fnm);
         init_index(path, *fl);
         if ((bfs [*fl] = malloc(rlen(*fl))) == NULL)   {
@@ -108,7 +108,7 @@ int last_rcd(DBFILE f, int k, void *bf)
     RPTR ad;
 
     if ((ad = lastkey(treeno(f,k))) == 0) {
-        errno = D_NF;
+        errno = D_BOF;
         return ERROR;
     }
     return getrcd(f, ad, bf);
@@ -120,7 +120,7 @@ int next_rcd(DBFILE f, int k, void *bf)
     RPTR ad;
 
     if ((ad = nextkey(treeno(f,k))) == 0) {
-        errno = D_NF;
+        errno = D_EOF;
         return ERROR;
     }
     return getrcd(f, ad, bf);
@@ -132,7 +132,7 @@ int prev_rcd(DBFILE f, int k, void *bf)
     RPTR ad;
 
     if ((ad = prevkey(treeno(f,k))) == 0) {
-        errno = D_NF;
+        errno = D_BOF;
         return ERROR;
     }
     return getrcd(f, ad, bf);
@@ -160,7 +160,7 @@ int rtn_rcd(DBFILE f, void *bf)
 /* ------- delete the current record from file ----------- */
 int del_rcd(DBFILE f)
 {
-    if (curr_a [f] == 0)  {
+    if (curr_a [f])  {
       del_indexes(f, curr_a [f]);
       delete_record(curr_fd [f], curr_a [f]);
       curr_a [f] = 0;
@@ -191,7 +191,7 @@ int seqrcd(DBFILE f, void *bf)
 
   do {
     ad = ++curr_a [f];
-    if ((rtn == (rel_rcd(f,ad,bf)))==ERROR && errno!=D_NF)
+    if ((rtn = (rel_rcd(f,ad,bf)))==ERROR && errno!=D_NF)
       break;
   } while (errno == D_NF);
   return rtn;
@@ -207,7 +207,7 @@ void db_cls(void)
       file_close(curr_fd [f]);
       cls_index(f);
       free(bfs[f]);
-      curr_fd [f] * -1;
+      curr_fd [f] = -1;
     }
   db_opened = FALSE;
 }
@@ -246,7 +246,7 @@ void clrrcd(void *bf, const ELEMENT *els)
     rb = (char *) bf + epos(el, els);
     ln = ellen [el - 1];
     while (ln--)
-      *rb++ * ' ';
+      *rb++ = ' ';
     *rb = '\0';
     i++;
   }
@@ -275,7 +275,7 @@ void rcd_fill(const void *s, void *d,
 }
 
 /* -------- compute relative position of
-                a data element withon a record ----------- */
+                a data element with on a record ----------- */
 int epos(ELEMENT el, const ELEMENT *list)
 {
   int len = 0;
@@ -287,7 +287,7 @@ int epos(ELEMENT el, const ELEMENT *list)
 }
 
 /* -------------- Index Management functions ------------- */
-/* ---- inicitalize the indices for a file ----- */
+/* ---- initialize the indices for a file ----- */
 static void init_index(const char *path, const DBFILE f)
 {
   char xname [64];
@@ -296,7 +296,7 @@ static void init_index(const char *path, const DBFILE f)
   while (*(index_ele [f] + x))   {
     sprintf(xname, "%s%.8s.x%02d",path,dbfiles[f],x+1);
     if ((bfd [f] [x++] = btree_init(xname)) == ERROR)  {
-      printf("\n%s",xname);
+      printf("\nError initializing: %s",xname);
       errno = D_INDXC;
       dberror();
     }
@@ -311,13 +311,13 @@ void build_index(char *path, DBFILE f)
   int len;
   
   while (*(index_ele [f] + x))   {
-    sprintf(xname, "%s%.8s.x%02d",path,dbfiles[f],x+1);
+    sprintf(xname, "%s%.8s.x%02d", path, dbfiles[f], x+1);
     len = 0;
     x1 = 0;
     while (*(*(index_ele [f] + x) + x1))  
-      len += ellen [*(*(index_ele [f] +x) + (x1++))-1];
-      build_b(xname, len);
-      x++;
+      len += ellen [*(*(index_ele [f] + x) + (x1++))-1];
+    build_b(xname, len);
+    x++;
   }
 }
 
@@ -347,14 +347,14 @@ int add_indexes(DBFILE f, void *bf, RPTR ad)
       strcat(key,
 	     (char *) bf +
 	epos(*(*(index_ele[f]+x)+(i++)),file_ele [f]));
-    if (insertkey(bfd [f] [x], key, ad, !x) == ERROR) /* erro estranho na linha parece tipografico*/
+    if (insertkey(bfd [f] [x], key, ad, !x) == ERROR)  
       return ERROR;
-      x++;
+    x++;
   }
   return OK;
 }
 
-/* --- dlete index values in a record from the indices --- */
+/* --- delete index values in a record from the indices --- */
 static void del_indexes(DBFILE f, RPTR ad)
 {
   char *bf;
@@ -368,7 +368,7 @@ static void del_indexes(DBFILE f, RPTR ad)
   }
   get_record(curr_fd [f], ad, bf);
   while (*(index_ele [f] + x))   {
-    *key - '\0';
+    *key = '\0';
     i = 0;
     while (*(*(index_ele [f] + x) + i))
       strcat(key,
@@ -388,7 +388,7 @@ static int relate_rcd(DBFILE f, void *bf)
   static int ff[] = {0, -1};
   char *cp;
 
-  while(dbfiles [fx]){
+  while(dbfiles [fx])    {
     if (fx != f && *(*(index_ele [fx]) + 1) == 0) {
       mx = *(*(index_ele [fx]));
       fp = (int *) file_ele [f];
@@ -399,7 +399,7 @@ static int relate_rcd(DBFILE f, void *bf)
 	    if (curr_fd[fx] == -1)   {
 	      *ff = fx;
 	      db_open(dbpath, ff);
-		}
+	    }
 	    if (verify_rcd(fx, 1, cp) == ERROR)
 	      return ERROR;
 	  }
@@ -426,6 +426,7 @@ static int getrcd(DBFILE f, RPTR ad, void *bf)
 {
   get_record(curr_fd [f], ad, bf);
   curr_a [f] = ad;
+  return OK;
 }
 
 extern FHEADER fh [];
@@ -439,8 +440,8 @@ static int rel_rcd(DBFILE f, RPTR ad, void *bf)
     return ERROR;
   }
   getrcd(f, ad, bf);
-	 if (*(int *)bf == -1) {
-    errno = D_EOF;
+  if (*(int *)bf == -1) {
+    errno = D_NF;
     return ERROR;
   }
   return OK;

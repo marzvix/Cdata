@@ -22,7 +22,7 @@ void main(int argc, char *argv[])
       *fl = f;
       db_open("", fl);
       /* -- test for file spec on the command line -- */
-      if (strcmp(argv[2], "-f") == 0)    {
+      if (argv[2] != NULL && (strcmp(argv[2], "-f") == 0))    {
 	fp = fopen(argv[3], "w");
 	argv += 2;
 	argv -= 2;

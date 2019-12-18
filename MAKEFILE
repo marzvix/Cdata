@@ -1,155 +1,184 @@
-# -- pg 271 -------------------------------------------------
-# GCC Makefile to build Cdata into an application
-# -----------------------------------------------------------
+# ----------------------------------------------------------
+# Turbo C Makefile to build Cdata into an application
+# ----------------------------------------------------------
 
-# -----------------------------------------------------------
-# Where GCC is installed
-# -----------------------------------------------------------
-GCCPATH = /usr/bin
+# ----------------------------------------------------------
+# Where Turbo C is installed
+# ----------------------------------------------------------
+TCPATH = C:\TOOLS\BC2AFW
 
-# -----------------------------------------------------------
-# Compiler
-# -----------------------------------------------------------
-CC = $(GCCPATH)/gcc
-CFLAGS = -g -O0
-LDFLAGS =
+CC = $(TCPATH)\BIN\bcc
+LINK = $(TCPATH)\BIN\tlink
 
-# -----------------------------------------------------------
-# Application name
-# -----------------------------------------------------------
-CDATA_APPL = cbs
+# ----------------------------------------------------------
+# Application Name
+# ----------------------------------------------------------
+CDATA_APPL  = cbs
+# ----------------------------------------------------------
+# Memory Model
+# ----------------------------------------------------------
+MODEL = S
 
-# -----------------------------------------------------------
-# Libraries
-# -----------------------------------------------------------
-LIBS = cdata ncurses
-LIBPATH = $(GCCPATH)/lib
+STARTUP = $(TCPATH)\lib\c0$(MODEL)
+LIBS = cdata $(TCPATH)\lib\c$(MODEL)
 
-# -----------------------------------------------------------
-# An implicit rule to build obj files from c files
-# -----------------------------------------------------------
-#.c.o:
-#	$(CC) -c $*
-#
-# -----------------------------------------------------------
-# An implicit rule to build exec files from obj files
-# -----------------------------------------------------------
-# %.o : %
-# 	$(CC) $(LDFLAGS) $< $(LOADLIBES) $(LDLIBS)
-# 	gcc $< -o $@ -l$(LIBS)
+# ----------------------------------------------------------
+# An implicit rule to build .OBJ files from .C files
+# ----------------------------------------------------------
 
-all: 	cdata.lib schema dbinit invoice qd ds index sort roster \
-	posttime payments
+.c.obj:
+	$(CC) -P-c -c $<
 
-exenotyet: 
+# ----------------------------------------------------------
+# An implicit rule to build .EXE files from .OBJ files
+# ----------------------------------------------------------
 
+.obj.exe:
+	$(LINK) $(STARTUP) $* $(CDATA_APPL).obj, $*,,$(LIBS)
 
-.PHONY: tests
-tests:  test_screen
+all :   cdata.lib   \
+        schema.exe  \
+        qd.exe      \
+        ds.exe      \
+        index.exe   \
+        dbsize.exe  \
+        dbinit.exe  \
+        posttime.exe\
+        payments.exe\
+        invoice.exe \
+        roster.exe
 
-test_screen.o: test_screen.c screen.c screen.h sys.c sys.h
+# ----------------------------------------------------------
+# CDATA.LIB
+# ----------------------------------------------------------
 
-test_screen: test_screen.o screen.o sys.o cbs.o cdata.o -lncurses
+cdata.lib   :   ellist.obj  \
+                cdata.obj   \
+                screen.obj  \
+                btree.obj   \
+                datafile.obj\
+                dblist.obj  \
+                clist.obj   \
+                filename.obj\
+                sort.obj    \
+                sys.obj
+	del cdata.lib
+	tlib cdata @cdata.bld
 
-#include  cbs.mk
+ellist.obj  :ellist.c cdata.h
 
-# -----------------------------------------------------------
-# cdata.lib
-# -----------------------------------------------------------
-cdata.lib: sys.o \
-	dblist.o \
-	cdata.o \
-	screen.o \
-	btree.o \
-	ellist.o \
-	datafile.o \
-	clist.o \
-	sort.o \
-	filename.o	
-	ar rcs $@ $^
+cdata.obj   :cdata.c  cdata.h datafile.h btree.h keys.h
 
-cbs.o: cbs.c cbs.h 
+screen.obj  :screen.c cdata.h screen.h keys.h
 
-ellist.o: ellist.c cdata.h
+btree.obj   :btree.c  cdata.h btree.h
 
-cdata.o: cdata.c cdata.h datafile.h btree.h keys.h
+datafile.obj: datafile.c    datafile.h
 
-screen.o: screen.c cdata.h screen.h keys.h
+dblist.obj  :dblist.c cdata.h
 
-btree.o: btree.c cdata.h btree.h
+clist.obj   :clist.c  cdata.h screen.h
 
-datafile.o: datafile.c cdata.h datafile.h
+sort.obj    :sort.c   cdata.h sort.h
 
-dblist.o: dblist.c cdata.h
+sys.obj     :sys.c    cdata.h sys.h
 
-clist.o: clist.c 
+filename.obj: filename.c cdata.h
 
-dbsize: dbsize.c btree.o
+# ----------------------------------------------------------
+# The Base Schema
+# ----------------------------------------------------------
 
-sort.o: sort.c cdata.h sort.h
+schema.exe  :   schema.obj
+	$(LINK) $(STARTUP) $*, $*,,$(LIBS)
 
-sys.o: sys.c cdata.h sys.h
+schema.obj  :   schema.c
 
-filename.o: filename.c cdata.h
+$(CDATA_APPL).c:    $(CDATA_APPL).sch schema.exe
+	schema $(CDATA_APPL)
 
-qd.o: qd.c cdata.h screen.h keys.h
+$(CDATA_APPL).obj   :   $(CDATA_APPL).c
 
-ds.o: ds.c cdata.h
+# ----------------------------------------------------------
+# Cdata Utility Programs
+# ----------------------------------------------------------
 
+qd.exe      :qd.obj     $(CDATA_APPL).obj   cdata.lib
+ds.exe      :ds.obj     $(CDATA_APPL).obj   cdata.lib
+index.exe   :index.obj  $(CDATA_APPL).obj   cdata.lib
+dbsize.exe  :dbsize.obj $(CDATA_APPL).obj   cdata.lib
+dbinit.exe  :dbinit.obj $(CDATA_APPL).obj   cdata.lib
 
-# -----------------------------------------------------------
-# The data base schema
-# -----------------------------------------------------------
-schema: schema.o
+qd.obj      :qd.c       cdata.h screen.h    keys.h
+ds.obj      :ds.c       cdata.h
+index.obj   :index.c    cdata.h
+dbsize.obj  :dbsize.c   cdata.h btree.h     datafile.h
+dbinit.obj  :dbinit.c   cdata.h datafile.h
 
-schema.o: schema.c
+# ----------------------------------------------------------
+# Application-specific (CBS) programs
+# ----------------------------------------------------------
 
-# -----------------------------------------------------------
-# Cdata utility programs
-# -----------------------------------------------------------
+posttime.exe:   posttime.obj    cbs.obj cdata.lib
 
-index: index.o $(CDATA_APPL).o cdata.lib
+payments.exe:   payments.obj    cbs.obj cdata.lib
 
-dbsize: dbsize.o $(CDATA_APPL).o cdata.lib -lncurses
+invoice.exe:    invoice.obj     cbs.obj cdata.lib
 
-dbinit: dbinit.o $(CDATA_APPL).o cdata.lib
+roster.exe:     roster.obj      cbs.obj cdata.lib
 
-invoice: invoice.o  $(CDATA_APPL).o cdata.lib -lncurses
+posttime.obj:   posttime.c      cbs.h   screen.h    keys.h
 
-qd: qd.o  $(CDATA_APPL).o cdata.lib -lncurses
+payments.obj:   payments.c      cbs.h   screen.h    keys.h
 
-ds: ds.o  cdata.lib -lncurses
+invoice.obj:    invoice.c       cbs.h
 
-index.o: index.c  cdata.h
+roster.obj:     roster.c        cbs.h   sort.h
 
-dbsize.o: dbsize.c cdata.h btree.h datafile.h
+# ----------------------------------------------------------
+# Databases/Indexes manipulation
+# ----------------------------------------------------------
 
-dbinit.o: dbinit.c cdata.h datafile.h
+.dat.x01: 
+	index $* 
 
-# -----------------------------------------------------------
-# application-specific (CBS) programs
-# -----------------------------------------------------------
+clients.x01: clients.dat
 
-posttime  : posttime.o cbs.o cdata.lib  -lncurses
-payments  : payments.o cbs.o cdata.lib  -lncurses
-invoice	  : invoice.o  cbs.o cdata.lib  -lncurses
-roster	  : roster.o   cbs.o cdata.lib  -lncurses
+projects.x01: projects.dat
 
-posttime.o : posttime.c cbs.h screen.h keys.h
-payments.o : payments.c cbs.h screen.h keys.h
-invoice.o  : invoice.c  cbs.h
-roster.o   : roster.c   cbs.h sort.h
+consulta.x01: consulta.dat
+	index $*nts
 
-run:
-	./sys
+assignme.x01: assignme.dat
+	index $*nts
 
-clean:
-	$(RM) *~
-	$(RM) *.o
-	$(RM) *.exe
-	$(RM) *.lib
-	$(RM) *.stackdump
-	$(RM) schema.exe
-	$(RM) schema.o
-	$(RM) cbs.h
-	$(RM) cbs.c
+ndxs:	clients.x01 projects.x01 consulta.x01 assignme.x01
+
+initdb:	dbinit.exe
+	dbinit
+	ndxs
+
+# ----------------------------------------------------------
+# Clean-up
+# ----------------------------------------------------------
+
+cleandxs:
+		del *.x??
+
+cleandbs:	cleandxs
+		del *.dat
+
+cleanmaps:
+	del *.map
+
+cleanobjs:
+	del *.obj
+
+cleanexes:
+	del *.exe
+
+cleanall: \
+	cleandbs  \
+	cleanmaps \
+	cleanobjs \
+	cleanexes

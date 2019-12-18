@@ -1,5 +1,4 @@
 /* -- pg 86 ------ schema.c -------------------- */
-
 /* 
  *  Build two C language schemas files from a CDATA schema
  *    Input:
@@ -117,6 +116,7 @@ void main(int argc, char *argv[])
     char fname[64];
     char *cp;
 
+    printf("%d %s\n", argc,  argv[argc-1]);
     if (argc > 1) {
         strcpy(fname, argv[1]);
         if ((cp = strchr(fname, '.')) == NULL) {
@@ -558,4 +558,5 @@ static void error(const enum error_codes n)
         if (tolower(getc(stdin)) != 'y')
             exit(1);
     }
-}  
+}
+

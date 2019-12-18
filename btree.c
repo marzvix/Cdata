@@ -55,7 +55,7 @@ int btree_init(char *ndx_name)
   /* ------- lock the btree ---------------- */
   bheader[trx].locked = TRUE;
   fseek(fp[trx], 0L, SEEK_SET);
-  fwrite(&bheader[trx], sizeof(HEADER),  1, fp[trx]);
+  fwrite(&bheader[trx], sizeof(HEADER), 1, fp[trx]);
   currnode[trx] = 0;
   currkno[trx] = 0;
   return trx;
@@ -188,7 +188,7 @@ static RPTR leaflevel(RPTR *t, char **a, int *p)
   }
   *p = 0;
   *t = *((RPTR *) (*a + KLEN));
-  read_node(*t, &trnode);
+  read_node(*t, &trnode); // <<< --- debug 2
   *a = trnode.keyspace;
   while (trnode.nonleaf)    {
     *t = trnode.key0;
@@ -242,7 +242,7 @@ int deletekey(int tree, char *x, RPTR ad)
     free(qp);
   }
   currnode[trx] = p;
-  currkno[trx] = (a - trnode.keyspace) /ENTLN;
+  currkno[trx] = (a - trnode.keyspace) / ENTLN;
   rt_len = (trnode.keyspace + (bheader[trx].m * ENTLN)) - a;
   memmove(a, a+ENTLN, rt_len);
   memset(a+rt_len, '\0', ENTLN);
@@ -331,7 +331,7 @@ static void implode(BTREE *left, BTREE *right)
   if ((par = malloc(NODE)) == NULL)
     memerr();
   j = childptr(lf, p, par);
-  /* --- move key from parent to ent of left sibiling --- */
+  /* --- move key from parent to end of left sibiling --- */
   lf_len = left->keyct * ENTLN;
   a = left->keyspace + lf_len;
   memmove(a, j, KLEN);
@@ -344,7 +344,7 @@ static void implode(BTREE *left, BTREE *right)
   memmove(a, right->keyspace, rt_len);
   /* --- point lower node to their new parent --- */
   if (left->nonleaf)
-    adopt(b, right->keyct, lf);
+    adopt(b, right->keyct + 1, lf);
   /* --- if global key poiter -> to the right sibiling
      change to -> left --- */
   if (currnode[trx] == left->rtsib)    {
@@ -393,11 +393,11 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
   int lshft, rshft;
 
   trx = tree;
-  if (trx > MXTREES || fp[trx] == 0)
+  if (trx >= MXTREES || fp[trx] == 0)
     return ERROR;
   p = 0;
   sv = 0;
-  nl_flag - 0;
+  nl_flag = 0;
   memmove(k, x, KLEN);
   t = bheader[trx].rootnode;
   /* ---- find insertion point --------------------------- */
@@ -407,7 +407,7 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
       if (unique)
 	return ERROR;
       else   {
-	leaflevel(&t, &a, &j);
+	leaflevel(&t, &a, &j);  /// <<<<-----debug
 	currkno[trx] = j;
       }
     }
@@ -437,13 +437,13 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
     rshft = FALSE;
     if ((yp = malloc(NODE)) == NULL)
       memerr();
-    if (trnode.lfsib, yp)    {
+    if (trnode.lfsib)    {
       read_node(trnode.lfsib, yp);
       if (yp->keyct < bheader[trx].m &&
 	  yp->prntnode == trnode.prntnode)    {
 	lshft = TRUE;
 	redist(yp, &trnode);
-	write_node(trnode.rtsib, yp);
+	write_node(trnode.lfsib, yp);
       }
     }
     if (lshft == FALSE && trnode.rtsib)    {
@@ -469,11 +469,11 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
     b = (RPTR*)
       (trnode.keyspace+((trnode.keyct+1)*ENTLN)-ADR);
     bp->key0 = *b;
-    bp->key0 = *b;
+    bp->keyct = bheader[trx].m - trnode.keyct;
     rt_len = bp->keyct * ENTLN;
     a = (char *) ( b + 1);
     memmove(bp->keyspace, a, rt_len);
-    bp->rtsib = p;
+    bp->rtsib = trnode.rtsib;
     trnode.rtsib = p;
     bp->lfsib = t;
     bp->nonleaf = trnode.nonleaf;
@@ -535,7 +535,7 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
   *((RPTR *) (bp->keyspace + KLEN)) = ad;
   memmove(bp->keyspace, k, KLEN);
   write_node(p, bp);
-  free(bp);
+  free(bp); /* <<<<<<<<<<<------- quebra aqui */
   bheader[trx].rootnode = p;
   if (nl_flag == FALSE)    {
     bheader[trx].rightmost = p;
@@ -566,7 +566,7 @@ static void redist(BTREE *left, BTREE *right)
     d = left->keyspace + (left->keyct * ENTLN);
     memmove(d, c, KLEN);
     d += KLEN;
-    e = right->keyspace + ADR;
+    e = right->keyspace - ADR;
     len = ((right->keyct - n2 - 1) * ENTLN) + ADR;
     memmove(d, e, len);
     if (left->nonleaf)
@@ -589,7 +589,7 @@ static void redist(BTREE *left, BTREE *right)
   }
   else {
     e = right->keyspace+((n2-right->keyct)*ENTLN)-ADR;
-    memmove(e, right->keyspace,
+    memmove(e, right->keyspace-ADR,
 	    (right->keyct * ENTLN) + ADR);
     e -= KLEN;
     memmove(e, c, KLEN);
@@ -602,7 +602,7 @@ static void redist(BTREE *left, BTREE *right)
     memset(d, '\0', len);
     if (right->nonleaf)
       adopt(right->keyspace - ADR,
-	    left->keyct - 1 , left->rtsib);
+	    left->keyct - n1 , left->rtsib);
 	if (left->nonleaf == FALSE)
 	  if (right->lfsib == currnode[trx] &&
 	      currkno[trx] > n1) {
@@ -689,7 +689,7 @@ RPTR prevkey(int tree)
 	return 0;
       currnode[trx] = trnode.lfsib;
       read_node(trnode.lfsib, &trnode);
-      currkno[trx] - trnode.keyct;
+      currkno[trx] = trnode.keyct;
     }
     else
       currkno[trx]--;
@@ -747,9 +747,9 @@ static RPTR scannext(RPTR *p, char **a)
     cn = *p;
     *p = trnode.prntnode;
     read_node(*p, &trnode);
-    *a - trnode.keyspace;
-    while (*((RPTR *) (*a - ADR)) |= cn)
-    *a += ENTLN;
+    *a = trnode.keyspace;
+    while (*((RPTR *) (*a - ADR)) != cn)
+      *a += ENTLN;
   }
   return 0;
 }
@@ -778,7 +778,7 @@ static RPTR scanprev(RPTR *p, char **a)
     if (trnode.prntnode == 0 || trnode.lfsib == 0)
       break;
     cn = *p;
-    *p = trnode.prntnode == 0;
+    *p = trnode.prntnode;
     read_node(*p, &trnode);
     *a = trnode.keyspace;
     while(*((RPTR *) (*a - ADR)) != cn)

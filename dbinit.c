@@ -18,8 +18,8 @@ void main(void)
   while (dbfiles [f]) {
     sprintf(fname, "%.8s.dat", dbfiles [f]);
     file_create(fname, rlen(f));
-    printf("\nCreating file %s with lenght %s",
-	   fname, rlen(f));
+    printf("\nCreating file %s with lenght %d",
+    	   fname, rlen(f));
     build_index("", f);
     f++;
   }
