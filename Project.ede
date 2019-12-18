@@ -1,6 +1,0 @@
-;; Object Cdata
-;; EDE Project Files are auto generated: Do Not Edit
-(ede-proj-project "Cdata"
-  :file "Project.ede"
-  :name "Cdata"
-  :targets nil)
