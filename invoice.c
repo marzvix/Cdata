@@ -10,7 +10,7 @@
 
 struct clients cl;
 
-main()
+void main(void)
 {
 	static int fl [] = {CLIENTS, -1};
 	double atof();
@@ -20,7 +20,7 @@ main()
 		if (next_rcd(CLIENTS, 1, &cl) == ERROR)
 			break;
 		printf("\n\n\nInvoice for Services Rendered\n");
-		printf("\n%s", cl.client_name);		
+		printf("\n%s", cl.client_name);
 		printf("\n%s", cl.address);
 		printf("\n%s, %s %s", cl.city, cl.state, cl.zip);
 		printf("\n\nAmount Due: $%10.2f\n",
@@ -28,5 +28,3 @@ main()
 	}
 	db_cls();
 }
-
-
