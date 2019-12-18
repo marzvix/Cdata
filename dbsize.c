@@ -4,15 +4,15 @@
 #include <stdio.h>
 #include "cdata.h"
 
-void index_m();
+static void index_m(int, int *);
 
-main()
+void main(void)
 {
 	int f, x;
-	long rct [MXFILS];			/* number of records/file 	*/
-	long fsize [MXFILS];		/* file sizes 				*/
-	long dsize = 0;				/* data base sizes 			*/
-	int m [MXINDEX];			/* btree m values 			*/
+	long rct [MXFILS];		/* number of records/file 	*/
+	long fsize [MXFILS];		/* file sizes 			*/
+	long dsize = 0;			/* data base sizes 		*/
+	int m [MXINDEX];		/* btree m values 		*/
 	long xsize [MXFILS] [MXINDEX];	/* index sizes 			*/
 
 	for (f = 0; dbfiles [f]; f++)	{
@@ -37,12 +37,11 @@ main()
 }
 
 
-
 /* --- compute the btree m values
 			for the indices of a data base file --- */
-static void index_m(f, m)
-int f;			/* file number */
-int *m;			/* array of m values */
+static void index_m(int f,	/* file number */
+		    int *m	/* array of m values */
+		    )
 {
 	int x, x1;
 	int len;
@@ -58,4 +57,3 @@ int *m;			/* array of m values */
 				-sizeof(RPTR)*4))/(len+sizeof(RPTR));
 	}
 }
-
