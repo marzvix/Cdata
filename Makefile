@@ -1,4 +1,4 @@
-# -- pg 271 -------------------------------------------------
+# -----------------------------------------------------------
 # GCC Makefile to build Cdata into an application
 # -----------------------------------------------------------
 
@@ -67,6 +67,15 @@ cdata.lib: sys.o \
 	sort.o \
 	filename.o	
 	ar rcs $@ $^
+
+cbs.c: schema cbs.c1 cbs.c2 cbs.c3
+	./schema <cbs.sch >cbs.c1 -1
+	./schema <cbs.sch >cbs.c2 -2
+	./schema <cbs.sch >cbs.c3 -3
+	echo '#include "cbs.c1"'> cbs.c
+	echo '#include "cbs.c2"'>> cbs.c
+	echo '#include "cbs.c3"'>> cbs.c
+
 
 cbs.o: cbs.c cbs.h 
 
