@@ -1,479 +1,415 @@
-/* -- pg 208 ---- screen.c ------------------------------- */
-
+/* ----------------- screen.c ------------------------- */
 #include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <errno.h>
 #include "cdata.h"
-#include "screen.h"
 #include "keys.h"
 
-int FieldChar = '_';             /* field filler character */
+int insert_mode = FALSE;	   /* insert mode, TRUE/FALSE */
+extern int prev_col, prev_row; /* current cursor location */
+extern int screen_displayed;   /* template displayed flag */
+#define FIELDCHAR '_'		   /* field filler character  */
 
-/* ----------- prototypes -------------------------------- */
-static int elp(ELEMENT);
-static int no_flds(void);
-static void data_coord(ELEMENT);
-static int read_element
-    (const char, const char *, char *);
-static void right_justify(char *);
-static void right_justify_zero_fill(char *);
-static int validate_date(char *);
-static void disp_element(char *, const char*);
-static void insert_status(void);
-static void database_error(void);
-static int endstroke(int);
-
-/* ----------- data element structure -------------------- */
-static struct {
-  int prot;                    /* element protected = TRUE */
-  int (*edits)();              /* custom edit function     */
+struct {
+	int prot;
+	int (*edits)();
 } sb [MXELE];
 
-static const ELEMENT *elist;   /* data element list        */
-static char *bf;               /* data entry buffer        */
-static char *tname;            /* screen template name     */
+int *elist;
+char *bf;
+char *tname;
+void right_justify(),
+     right_justify_zero_fill(), left_justify_zero_fill(),
+	 disp_element(), insert_status(),
+	 put_fchar(), data_coord();
 
-static int notice_posted = 0;  /* notice on screen = TRUE  */
-static int insert_mode = FALSE;/* insert mode TRUE/FALSE   */
-static int prev_col, prev_row; /* current cursor location  */
-int screen_displayed;          /* template displayed flag  */
-
-/* ---------------- initialize the screen process ---------*/
-void init_screen(char *name, const ELEMENT *els, char *bfr)
-{ /* ok */
-  tname = name;
-  elist = els;
-  bf = bfr;
-  database_message = database_error;
+/* ----------- initialize the screen process ------------- */
+void init_screen(name, els, bfr)
+char *name;
+int *els;
+char *bfr;
+{
+	tname = name;
+	elist = els;
+	bf = bfr;
 }
 
-/* ------- set the protect flag for a screen field --------*/
-void protect(ELEMENT el, int tf)
+/* ------- set the protect flag for a screen field ------- */
+void protect(el, tf)
+int el, tf;
 {
-  sb[elp(el)].prot = tf;
+	sb[elp(el)].prot = tf;
 }
 
-/* ---- set the field edit function for a screen field ----*/
-void edit(ELEMENT el, int (*func)())
+/* ---- set the field edit function for a screen field --- */
+void edit(el, func)
+int el, (*func)();
 {
-  sb[elp(el)].edits = func;
+	sb[elp(el)].edits = func;
 }
 
 /* ---- compute the relative position
-                        of an element on a screen ---------*/
-static int elp(ELEMENT el)
+			of an element on a screen ------ */
+static int elp(el)
+int el;
 {
-  int i;
+	int i;
 
-  for (i = 0; *(elist + 1); i++)
-    if (el == *(elist +1))
-      break;
-  return i;
+	for (i = 0; *(elist + i); i++)
+		if (el == *(elist + i))
+			break;
+	return i;
 }
 
-/* ----------- display the crt template -------------------*/
-void display_template(void)
+/* ----------- Display the crt template ----------- */
+void display_template()
 {
-  int i, ct;
-  ELEMENT el;
-  char detag[16], *cp2;
-  const char *cp1;
+	int i, el, ct;
+	char detag[16], *cp1, *cp2;
 
-  clear_screen();
-  screen_displayed = TRUE;
-  ct = no_flds();
-  printf("\n                    --- %s ---\n", tname);
-  for (i = 0; i < ct; i++) {
-    el = *(elist + 1) - 1;
-    cp1 = denames[el];
-    cp2 = detag;
-    while (*cp1 && cp2 < detag + sizeof detag - 1)   {
-      *cp2++ = *cp1 == '_' ? ' ' : *cp1;
-      cp1++;
-    }
-    *cp2 = '\0';
-    printf("\n%-16.16s %s", detag, elmask[el]);
-  }
-  printf("\n");
-  insert_status();
-}
-
-/* ---- process data entry for a screen template ----------*/
-int data_entry(void)
-{
-  int (*validfunct)(char *, int);
-  int field_ctr, exitcode;
-  ELEMENT el;
-  int field_ptr = 0, done = FALSE, isvalid;
-  char *bfptr;
-
-  if (screen_displayed == 0)
-    display_template();
-  tally();
-  field_ctr = no_flds();
-  /* ---- collect data from keyboard into screen ---- */
-  while (done == FALSE)    {
-    bfptr = bf + epos(elist[field_ptr], elist);
-    el = *(elist + field_ptr) - 1;
-    validfunct = sb[field_ptr].edits;
-    data_coord(el + 1);
-    if (sb[field_ptr].prot == FALSE)     {
-      exitcode =
-	read_element(eltype[el], elmask[el], bfptr);
-      isvalid = (exitcode != ESC && validfunct) ?
-	(*validfunct)(bfptr, exitcode) : OK;
-    }
-    else    {
-      exitcode = FWD;
-      isvalid = OK;
-    }
-    if (isvalid == OK)
-      switch (exitcode)    { /* passed edit */
-      case DN:               /* cursor down key */
-      case '\r':             /* enter/return */
-      case '\t':             /* horizontal tab */
-      case FWD:              /* -> */
-	if (field_ptr+1 == field_ctr)
-	  field_ptr = 0;
-	else
-	  field_ptr++;
-	break;
-      case UP:               /* cursor up key */
-      case BS:               /* back space */
-	if (field_ptr+1 == 0)
-	  field_ptr = field_ctr -1;
-	else
-	  field_ptr--;
-	break;
-      default:
-	done = endstroke(exitcode);
-	break;
-      }
-  }
-  return (exitcode);
-}
-
-/* ---- compute the number of fields on a template  -------*/
-static int no_flds(void)
-{
-  int ct = 0;
-
-  while (*(elist + ct))
-    ct++;
-  return ct;
-}
-
-/* ------ compute data elemetn field coordinates ----------*/
-static void data_coord(ELEMENT el)
-{
-  prev_col = 17;
-  prev_row = elp(el) + 3;
-}
-
-/* ------ read data element from keyboard -----------------*/
-static int read_element
-               (const char type, const char *msk, char *bfr)
-{
-  const char *mask = msk;
-  char *buff = bfr;
-  int done = FALSE, c, column = prev_col;
-
-  while (*mask != FieldChar)    {
-    prev_col++;
-    mask;
-  }
-  while (TRUE)    {
-    cursor(prev_col, prev_row);
-    c = get_char();
-    clear_notice();
-    switch(c)     {
-    case '\b':
-    case BS:
-      if (buff == bfr)    {
-	done = c == BS;
-	break;
-      }
-      --buff;
-      do    {
-	--mask;
-	--prev_col;
-      } while (*mask != FieldChar);
-      if (c == BS)
-	break;
-    case DEL:
-      memmove(buff, buff+1, strlen(buff));
-      *(buff+strlen(buff))  = ' ';
-      cursor(prev_col, prev_row);
-      disp_element(buff, mask);
-      break;
-    case FWD:
-      do {
-	prev_col++;
-	mask++;
-      } while (*mask && *mask != FieldChar);
-      buff++;
-      break;
-    case INS:
-      insert_mode ^= TRUE;
-      insert_status();
-      break;
-    case '.':
-      if (type == 'C')    {
-	if (*mask++ && *buff == ' ')    {
-	  *buff++ = '0';
-	  if(*mask++ && *buff == ' ')
-	    *buff++ = '0';
+	clear_screen();
+	screen_displayed = TRUE;
+	ct = no_flds();
+	printf("\n                   --- %s ---\n", tname);
+	for (i = 0; i < ct; i++)	{
+		el = *(elist + i) - 1;
+		cp1 = denames[el];
+		cp2 = detag;
+		while (*cp1 && cp2 < detag + sizeof detag - 1)	{
+			*cp2++ = *cp1 == '_' ? ' ' : *cp1;
+			cp1++;
+		}
+		*cp2 = '\0';
+		printf("\n%-16.16s %s",detag, elmask[el]);
 	}
-	right_justify(bfr);
-	cursor(column, prev_row);
-	disp_element(bfr, msk);
-	prev_col = column + strlen(mask)-2;
-	mask = msk + strlen(msk)-2;
-	buff = bfr + strlen(bfr)-2;
-	break;
-      }
-    default:
-      if (endstroke(c))    {
-	done = TRUE;
-	break;
-      }
-      if (type != 'A' && !isdigit(c))    {
-	error_message("Numbers only");
-	break;
-      }
-      if (insert_mode)    {
-	memmove(buff+1, buff, strlen(buff)-1);
-	disp_element(buff,mask);
-      }
-      *buff++ = c;
-      put_char(c);
-      do {
-	prev_col++;
-	mask++;
-      } while (*mask && *mask != FieldChar);
-      if (!*mask)
-	c = FWD;
-      break;
-    }
-    if (!*mask)
-      done = TRUE;
-    if (done)    {
-      if (type == 'D' &&
-	  c != ESC &&
-	  validate_date(bfr) != OK)
-	return -1;
-      break;
-    }
-  }
-  if (c != ESC && type != 'A')    {
-    if (type == 'C')    {
-      if (*mask++ && *buff == ' ')     {
-	*buff++ = '0';
-	if (*mask++ && *buff == ' ')
-	  *buff++ = '0';
-      }
-    }
-    if (type == 'Z' || type == 'D')
-      right_justify_zero_fill(bfr);
-    else
-      right_justify(bfr);
-    cursor(column, prev_row);
-    disp_element(bfr, msk);
-  }
-  return (c);
+	printf("\n");
+	insert_status();
 }
 
-/* --------- right justify, space fill --------------------*/
-static void right_justify(char *s) 
+/* ----- Process data entry for a screen template. ---- */
+int data_entry()
 {
-  int len;
+	int (*validfunct)();
+	int field_ctr, exitcode, el;
+	int field_ptr = 0, done = FALSE, isvalid;
+	char *bfptr;
 
-  len = strlen(s);
-  while (*s == ' ' || *s == '0' && len)     {
-    len--;
-    *s++ = ' ';
-  }
-  if (len)
-    while (*(s+(len-1)) == ' ') {
-      memmove(s+1, s, len-1);
-      *s = ' ';
-    }
+	if (screen_displayed == 0)
+		display_template();
+	tally();
+	field_ctr = no_flds();
+	/* ---- collect data from keyboard into screen ---- */
+	while (done == FALSE)	{
+		bfptr = bf + epos(elist[field_ptr], elist);;
+		el = *(elist + field_ptr) - 1;
+		validfunct = sb[field_ptr].edits;
+		data_coord(el + 1);
+		if (sb[field_ptr].prot == FALSE)	{
+			exitcode =
+				read_element(eltype[el], elmask[el], bfptr);
+			isvalid = (exitcode != ESC && validfunct) ? 
+						(*validfunct)(bfptr,exitcode) : OK;
+		}
+		else	{
+			exitcode = FWD;
+			isvalid = OK;
+		}
+		if (isvalid == OK)
+			switch (exitcode)	{		/* passed edit */
+				case DN:				/* cursor down key */
+				case '\r':				/* enter/return */
+				case '\t':				/* horizontal tab */
+				case FWD:				/* -> */
+					if (field_ptr+1 == field_ctr)
+						field_ptr = 0;
+					else
+						field_ptr++;
+					break;
+				case UP:				/* cursor up key */
+				case BS:				/* back space */
+					if (field_ptr == 0)
+						field_ptr = field_ctr - 1;
+					else
+						field_ptr--;
+					break;
+				default:
+					done = endstroke(exitcode);
+					break;
+			}
+	}
+	return (exitcode);
 }
 
-/* --------- right justify, zero fill ---------------------*/
-static void right_justify_zero_fill(char *s)
+/* ----- Compute the number of fields on a template ------ */
+static int no_flds()
 {
-  int len;
+	int ct = 0;
 
-  if (spaces(s))
-    return;
-  len = strlen(s);
-  while (*(s + len - 1) == ' ')    {
-    memmove(s+1, s, len-1);
-    *s = '0';
-  }
+	while (*(elist + ct))
+		ct++;
+	return ct;
 }
 
-/* --------- test for spaces ------------------------------*/
-int spaces(char *c)
+/* ------ compute data element field coordinates --------- */
+static void data_coord(el)
+int el;
 {
-  while (*c == ' ')
-    c++;
-  return !*c;
+	prev_col = 17;
+	prev_row = elp(el) + 3;
 }
 
-/* ------------ validate a date (DDMMYY) ------------------*/
-static int validate_date(char *s)
+
+
+/* ------- read data element from keyboard ------------- */
+static int read_element(type, msk, bfr)
+char type, *msk, *bfr;
 {
-  static int days_in_month[] =
-    { 31,28,31,30,31,30,31,31,30,31,30,31 };
-  char date [7];
-  int day, month, year;
+	char *mask = msk, *buff = bfr;
+	int done = FALSE, c, column = prev_col;
 
-  strcpy(date, s);
-  if (spaces(date))
-    return OK;
-  /* ------ extract the year ------ */
-  year = atoi(date+4);
-  /* ------ extract the month ------ */
-  *(date+4) = '\0';
-  month = atoi(date+2)-1;
-  /* ------ extract the day ------ */
-  *(date+2) = '\0';
-  day = atoi(date-1);
-  /* ------ leap year adjustment ------ */
-  if ((year % 4) == 0)
-    days_in_month[1] = 29;
-  else
-    days_in_month[1] = 28;
-  if (month < 12)
-    if (day <days_in_month [month])
-      return 0L;
-  error_message("Invalid date");
-    return ERROR;
+	while (*mask != FIELDCHAR)	{
+		prev_col++;
+		mask++;
+	}
+	while (TRUE)	{
+		cursor(prev_col, prev_row);
+		c = get_char();
+		clear_notice();
+		switch (c)	{
+			case '\b':
+			case BS:
+				if (buff == bfr)	{
+					done = c == BS;
+					break;
+				}
+				--buff;
+				do	{
+					--mask;
+					--prev_col;
+				} while (*mask != FIELDCHAR);
+				if (c == BS)
+					break;
+			case DEL:
+				mov_mem(buff+1, buff, strlen(buff));
+				*(buff+strlen(buff)) = ' ';
+				cursor(prev_col, prev_row);
+				disp_element(buff,mask);
+				break;
+			case FWD:
+				do	{
+					prev_col++;
+					mask++;
+				} while (*mask && *mask != FIELDCHAR);
+				buff++;
+				break;
+			case INS:
+				insert_mode ^= TRUE;
+				insert_status();
+				break;
+			case '.':
+				if (type == 'C')	{
+					if (*mask++ && *buff == ' ')	{
+						*buff++ = '0';
+						if (*mask++ && *buff == ' ')
+							*buff++ = '0';
+					}
+					right_justify(bfr);
+					cursor(column, prev_row);
+					disp_element(bfr, msk);
+					prev_col = column + strlen(msk)-2;
+					mask = msk + strlen(msk)-2;
+					buff = bfr + strlen(bfr)-2;
+					break;
+				}
+			default:
+				if (endstroke(c))	{
+					done = TRUE;
+					break;
+				}
+				if (type != 'A' && !isdigit(c))	{
+					error_message("Numbers only");
+					break;
+				}
+				if (insert_mode)	{
+					mov_mem(buff, buff+1, strlen(buff)-1);
+					disp_element(buff,mask);
+				}
+				*buff++ = c;
+				put_fchar(c);
+				do	{
+					prev_col++;
+					mask++;
+				} while (*mask && *mask != FIELDCHAR);
+				if (!*mask)
+					c = FWD;
+				break;
+		}
+		if (!*mask)
+			done = TRUE;
+		if (done)	{
+			if (type == 'D' &&
+				c != ESC &&
+					validate_date(bfr) != OK)
+				return -1;
+			break;
+		}
+	}
+	if (c != ESC && type != 'A')	{
+		if (type == 'C')	{
+			if (*mask++ && *buff == ' ')	{
+				*buff++ = '0';
+				if (*mask++ && *buff == ' ')
+					*buff++ = '0';
+			}
+		}
+		if (type == 'Z' || type == 'D')
+			right_justify_zero_fill(bfr);
+		else
+			right_justify(bfr);
+		cursor(column, prev_row);
+		disp_element(bfr,msk);
+	}
+	return (c);
 }
 
-/* ---- display all the fields on a screen ----------------*/
-void tally(void)
+/* ---------- test c for an ending keystroke ----------- */
+endstroke(c)
 {
-  const ELEMENT *els = elist;
-
-  while (*els)
-    put_field(*els++);
+	switch (c)	{
+		case '\r':
+		case '\n':
+		case '\t':
+		case ESC:
+		case F1:
+		case F2:
+		case F3:
+		case F4:
+		case F5:
+		case F6:
+		case F7:
+		case F8:
+		case F9:
+		case F10:
+		case PGUP:
+		case PGDN:
+		case HOME:
+		case END:
+		case UP:
+		case DN:
+			return TRUE;
+		default:
+			return FALSE;
+	}
 }
 
-/* ------- writed a data elemente on the screen -----------*/
-void put_field(ELEMENT el)
+/* ------- right justify, space fill -------- */
+static void right_justify(s)
+char *s;
 {
-  data_coord(el);
-  cursor(prev_col, prev_row);
-  disp_element(bf + epos(el, elist), elmask[el - 1]);
+	int len;
+
+	len = strlen(s);
+	while (*s == ' ' || *s == '0' && len)	{
+		len--;
+		*s++ = ' ';
+	}
+	if (len)
+		while (*(s+(len-1)) == ' ')	{
+			mov_mem(s, s+1, len-1);
+			*s = ' ';
+		}
 }
 
-/* ------------ display a data element --------------------*/
-static void disp_element(char *b, const char *msk)
+/* ---------- right justify, zero fill --------------- */
+static void right_justify_zero_fill(s)
+char *s;
 {
-  while (*msk)    {
-    int c = *msk != FieldChar ? *msk : *b++;
-    put_char(c);
-    msk++;
-  }
-  cursor(prev_col,prev_row);
+	int len;
+
+	if (spaces(s))
+		return;
+	len = strlen(s);
+	while (*(s + len - 1) == ' ')	{
+		mov_mem(s, s + 1, len-1);
+		*s = '0';
+	}
 }
 
-/* ------------ dispaly insert mode status ----------------*/
-static void insert_status(void)
+/* ----------- test for spaces -------- */
+int spaces(c)
+char *c;
 {
-  cursor(65,24);
-  printf(insert_mode ? "[INS]" : "     ");
-  cursor(prev_col,prev_row);
+	while (*c == ' ')
+		c++;
+	return !*c;
 }
 
-/* ----------- error messages -----------------------------*/
-void error_message(char *s)
-{ /* ok */
-  putchar('\a');
-  post_notice(s);
-}
-
-/* ----------- clear notice line --------------------------*/
-void clear_notice(void)
-{ /* ok */
-  int i;
-
-  if (notice_posted)   {
-    cursor(0, 24);
-    for ( i = 0; i < 50; i++)
-      putchar(' ');
-    notice_posted = FALSE;
-    cursor(prev_col, prev_col);
-  }
-}
-
-/* ----------- post a notice ------------------------------*/
-void post_notice(char *s)
-{ /* ok */
-  clear_notice();
-  cursor(0,24);
-  while(*s) {
-    putchar(isprint(*s) ? *s : '.');
-    s++;
-  }
-  cursor(prev_col, prev_row);
-  notice_posted = TRUE;
-}
-
-/* ------------ specif data base error --------------------*/
-static void database_error(void)
-{ /* ok */
-  static char *ers [] = {
-     "Record not found",
-     "No prior record",
-     "End of file",
-     "Beggining of file",
-     "Record already exists",
-     "Not enough memory",
-     "Index corrupted",
-     "Disk i/o error"
-  };
-  error_message(ers[errno-1]);
-}
-
-/* -------- test c for an ending keystroke ----------------*/
-static int endstroke(int c)
+/* -------------- validate a date ----------------- */
+static int validate_date(s)
+char *s;
 {
-  switch (c) {
-    /* ------ implementation-dependent values -------- */
+	static int days [] =
+		{ 31,28,31,30,31,30,31,31,30,31,30,31 };
+	char date [7];
+	int mo;
 
-  case F1:         /* function keys */
-  case F2:
-  case F3:
-  case F4:
-  case F5:
-  case F6:
-  case F7:
-  case F8:
-  case F9:
-  case F10:
-
-  case PGUP:      /* page scrolling keys */
-  case PGDN:
-  case HOME:
-  case END:
-
-  case UP:        /* cursor movmente keys */
-  case DN:
-
-    
-  case '\r':      /* standard ASCII vales */
-  case '\n':
-  case '\t':
-  case ESC:
-    return TRUE;
-  default:
-    return FALSE;
-    
-  }
+	strcpy(date, s);
+	if (spaces(date))
+		return OK;
+	if (!atoi(date + 4))
+		days[1]++;
+	*(date + 4) = '\0';
+	mo = atoi(date+2);
+	*(date+2) = '\0';
+	if (mo && mo < 13 && atoi(date) &&
+				atoi(date) <= days [mo - 1])
+		return OK;
+	error_message("Invalid date");
+	return ERROR;
 }
+
+/* ---- display all the fields on a screen ------ */
+void tally()
+{
+	int *els = elist;
+
+	while (*els)
+		put_field(*els++);
+}
+
+/* ------- write a data element on the screen --------- */
+void put_field(el)
+int el;
+{
+	data_coord(el);
+	cursor(prev_col, prev_row);
+	disp_element(bf + epos(el, elist), elmask[el - 1]);
+}
+
+/* ---------- display a data element -------- */
+static void disp_element(b, msk)
+char *b, *msk;
+{
+	while (*msk)	{
+		put_fchar(*msk != FIELDCHAR ? *msk : *b++);
+		msk++;
+	}
+	cursor(prev_col,prev_row);
+}
+
+
+
+
+/* ---------- display insert mode status ------------------ */
+static void insert_status()
+{
+	cursor(65,24);
+	printf(insert_mode ? "[INS]" : "     ");
+	cursor(prev_col,prev_row);
+}
+
+/* --------- write a field character --------- */
+static void put_fchar(c)
+int c;
+{
+	put_char(c == ' ' ? '_' : c);
+}
+

@@ -1,561 +1,496 @@
-/* -- pg 86 ------ schema.c -------------------- */
+/* --------------- schema.c ------------------ */
 
-/* 
- *  Build two C language schemas files from a CDATA schema
- *    Input:
- *      <applications.sch>
- *    Output:
- *       applications.h> contains:
- *          data elements enums
- *          file enums
- *          record structs
- *      <application>.c contains:
- *          ascii strings for faile and data element names
- *          data elements masks array
- *          data elements types array
- *          element lenght array
- *          data base schama arrays
+/*  Read a file from the standard input.
+ *  Write one of three schema files to the standard output
+ *  depending on the runtime switch.
+ *  If -1 is on the command line,
+ *		the #define statements are built.
+ *  If -2 is on the command line,
+ *		the file of ascii strings for 
+ *  	file and data element names is built.
+ *  If -3 is on the command line,
+ *  the data base schema array source file is built.
  */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <process.h>
+#define SCHEMA
 #include "cdata.h"
 
-static struct dict {         /* data element dictionary  */
-    char dename [NAMELEN+1]; /* name                     */
-    char detype;             /* type                     */
-    char delen;              /* lenght                   */
-    char *demask;            /* display mask             */
+#define MXCAT 3	/* maximum elements concatenated per index */
+#define NAMLEN 31
+
+struct dict {				/* data element dictionary	*/
+	char dename [NAMLEN+1];	/* 	name					*/
+	char detype;			/* 	type					*/
+	int delen;				/* 	length					*/
+	char *demask;			/* 	display mask			*/
 } dc [MXELE];
+int dectr = 0;				/* data elements in dictionary */
+int fctr = 0;				/* files in data base 		   */
+char filename [MXFILS] [NAMLEN+1];	/* file name strings   */
+int fileele [MXFILS] [MXELE];		/* elements in files   */
+int ndxele [MXFILS] [MXINDEX] [MXCAT]; 	/* indices		   */
 
-static int dectr = 0;        /* data elements in dictionary    */
-static int fctr = 0;         /* files in database              */
-static char filenames [MXFILS] [NAMELEN+1]; /* filenames       */
-static char fileele [MXFILS] [MXELE];       /* file elements   */
-static int ndxele [MXFILS] [MXINDEX] [MXCAT];    /* indexes    */
+char word[NAMLEN+1];
+char *malloc();
+int lnctr = 0;	/* input stream line counter */
+char ln [160];
 
-static char word[NAMELEN+1];
-static int lnctr = 0;        /* input stream line counter */
-static char ln [160];
-
-/* ----------- error codes ----------- */
-enum error_codes { /**/
-    ER_NAME=1,
-    ER_LENGTH,
-    ER_COMMA,
-    ER_TYPE,
-    ER_QUOTE,
-    ER_SCHEMA,
-    ER_COMMAND,
-    ER_EOF,
-    ER_DUPLNAME,
-    ER_UNKNOWN_ELEMENT,
-    ER_TOOMANY_ELEMENTS,
-    ER_MEMORY,
-    ER_UNKNOWN_FILENAME,
-    ER_TOOMANY_INDEXES,
-    ER_TOOMANY_IN_INDEX,
-    ER_DUPL_ELEMENT,
-    ER_TOOMANY_FILES,
-    ER_NOSCHEMA,
-    ER_NOSUCH_SCHEMA,
-    ER_TERMINAL
+/* -------- error messages ----------- */
+char *ers[] = {	"invalid name",					/*  1 */
+				"invalid length",				/*  2 */
+				"comma missing",				/*  3 */
+				"invalid data type",			/*  4 */
+				"quote missing",				/*  5 */
+				"#schema missing",				/*  6 */
+			   	"#<command> missing",			/*  7 */ 
+				"unexpected end of file",		/*  8 */
+				"duplicate file name",			/*  9 */
+				"unknown data element",			/* 10 */
+				"too many data elements",		/* 11 */
+				"out of memory",				/* 12 */
+				"unknown file name",			/* 13 */
+				"too many indices in file",		/* 14 */
+				"too many elements in index",	/* 15 */
+				"duplicate data element",		/* 16 */
+				"too many files",				/* 17 */
+				"invalid command line switch"   /* 18 */
 };
 
-/* ----------- error messages ----------- */
-static struct { /**/
-    enum error_codes ec;
-    char *errormsg;
-} ers[] = { /**/
-    ER_NAME,                   "Invalid name",
-    ER_LENGTH,                 "Invalid length",
-    ER_COMMA,                  "comma missing",
-    ER_TYPE,                   "invalid data type",
-    ER_QUOTE,                  "quote missing",
-    ER_SCHEMA,                 "#schema missing",
-    ER_COMMAND,                "#<command> missing",
-    ER_EOF,                    "unexpected end of file",
-    ER_DUPLNAME,               "duplicate filename",
-    ER_UNKNOWN_ELEMENT,        "unknown data element",
-    ER_TOOMANY_ELEMENTS,       "too many data elements",
-    ER_MEMORY,                 "out of memory",
-    ER_UNKNOWN_FILENAME,       "unknown file name",
-    ER_TOOMANY_INDEXES,        "too many indexes in file",
-    ER_TOOMANY_IN_INDEX,       "too many elements in index",
-    ER_DUPL_ELEMENT,           "duplicate data element",
-    ER_TOOMANY_FILES,          "to many files",
-    ER_NOSCHEMA,               "no schema file specified",
-    ER_NOSUCH_SCHEMA,          "no such schema file",
-    ER_TERMINAL,               NULL
-};
-
-static void de_dict(void);
-static void files(void);
-static void keys(void);
-static void defout(const char *);
-static void schout(const char *);
-static void lcase(char *, const char *);
-static void error(const enum error_codes);
-static void get_line(void);
-static void skip_white(char **);
-static void *get_word(char *);
-static void name_val(void);
-static void numb_val(void);
-static void expect_comma(char **);
-
+void de_dict(), files(), keys(), schout(), defout(),
+     lcase(), strout(), error(), get_line(), skip_white(), 
+	 name_val(), numb_val(), expect_comma(), depart();
+char *get_word();
 #define iswhite(c) ((c)==' '||(c)=='\t')
 #define REMARK ';'
 
-static FILE *fp;
-
 /* ----------------- main program -------------- */
-void main(int argc, char *argv[])
+main(argc, argv)
+int argc;
+char *argv[];
 {
-    char fname[64];
-    char *cp;
-
-    if (argc > 1) {
-        strcpy(fname, argv[1]);
-        if ((cp = strchr(fname, '.')) == NULL) {
-            cp = fname+strlen(fname);
-            strcpy(cp, ".sch");
-        }
-        if ((fp = fopen(fname, "r")) == NULL) {
-            error(ER_NOSUCH_SCHEMA);
-            exit(1);
-        }
-        *cp = '\0';
-        get_line();
-        if(strncmp(ln, "#schema ", 8))
-            error(ER_SCHEMA);
-        else {
-            get_word(ln + 8);
-            name_val();
-        }
-        get_line();
-        while (strncmp(ln, "#end schema", 11)) {
-            if (strncmp(ln, "#dictionary", 11) == 0)
-                de_dict();
-            else if (strncmp(ln, "#file ", 6) == 0)
-                files();
-            else if (strncmp(ln, "#key ", 5) == 0)
-                keys();
-            else
-                error(ER_COMMAND);
-            get_line();
-        }
-        fclose(fp);
-        defout(fname);
-        schout(fname);
-    }
-    else
-        error(ER_NOSCHEMA);
-    exit(0);
-}
-         
-/* -------- build the data element dictionary --------------- */
-static void de_dict(void)
-{
-    char *cp, *cp1;
-    int el, masklen, buildmask;
-    while (TRUE) {
-        get_line();
-        if (strncmp(ln, "#end dictionary", 15) == 0)
-            break;
-        if (dectr == MXELE) {
-            error(ER_TOOMANY_ELEMENTS);
-            continue;
-        }
-        cp = get_word(ln);
-        name_val();
-        for (el = 0; el < dectr; el++)
-            if (strcmp(word, dc[el].dename) == 0) {
-                error(ER_DUPL_ELEMENT);
-                continue;
-            }
-        strcpy(dc[dectr].dename, word);
-        expect_comma(&cp);
-        skip_white(&cp);
-        switch (*cp) { 
-        case 'A':
-        case 'Z':
-        case 'C':
-        case 'N':
-        case 'D': break;
-        default : error(ER_TYPE);
-                  continue;
-        }
-        dc[dectr].detype = *cp++;
-        expect_comma(&cp);
-        cp = get_word(cp);
-        numb_val();
-        dc[dectr].delen = atoi(word);
-        skip_white(&cp);
-        if (*cp++ == ',') {
-            buildmask = FALSE;
-            /* --- comma means display mask is coded --- */
-            skip_white(&cp);
-            if (*cp != '"' ) {
-                    error(ER_QUOTE);
-                    continue;
-            }
-            cp1 = cp + 1;
-            while (*cp1 != '"' && *cp1 && *cp1 != '\n')
-                cp1++;
-            if (*cp1++ != '"') {
-                error(ER_QUOTE);
-                continue;
-            }
-            *cp1 = '\0';
-            masklen = (cp1-cp)+1;
-        }
-        else {
-            /* ------ no display mask, build one ------ */
-            buildmask = TRUE;
-            masklen = dc[dectr].delen+3;
-        }
-        if ((dc[dectr].demask = malloc(masklen)) == NULL) {
-            error(ER_MEMORY);
-            exit(1);
-        }
-        if (buildmask) {
-            dc[dectr].demask[0] = '"';
-            memset(dc[dectr].demask+1, '_', masklen-3);
-            dc[dectr].demask[masklen-2] = '"';
-            dc[dectr].demask[masklen-1] = '\0';
-        }
-        else
-            strcpy(dc[dectr].demask, cp);
-        dectr++;
-    }
+	get_line();
+	if (strncmp(ln, "#schema ", 8))
+		error(6);
+	else	{
+		get_word(ln + 8);
+		name_val();
+		printf("\n/");
+		printf("* ------------- %s ------------ */\n", word);
+	}
+	get_line();
+	while (strncmp(ln, "#end schema", 11))	{
+		if (strncmp(ln, "#dictionary", 11) == 0)
+			de_dict();
+		else if (strncmp(ln, "#file ", 6) == 0)
+			files();
+		else if (strncmp(ln, "#key ", 5) == 0)
+			keys();
+		else
+			error(7);
+		get_line();
+	}
+	if (argc > 1)	{
+		if (strcmp(argv[1], "-1") == 0)
+			defout();
+		else if (strcmp(argv[1], "-2") == 0)
+			strout();
+		else if (strcmp(argv[1], "-3") == 0)
+			schout();
+		else
+			error(18);
+	}
+	else
+		error(18);
+	depart(0);
 }
 
-/* ----------- build the file definitions --------------- */
-static void files(void)
+/* -------- build the data element dictionary ---------- */
+static void de_dict()
 {
-    int i, el = 0;
-    if (fctr == MXFILS)
-        error(ER_TOOMANY_FILES);
-    get_word(ln + 6);               /* get the file name   */ 
-    name_val();                     /* validate it        */
-    for (i = 0; i < fctr; i++)      /* already assigned   */
-        if (strcmp(word, filenames[i]) == 0)
-            error(ER_DUPLNAME);
-    strcpy(filenames[fctr], word);
-    /* ---------- process the file's data elements ------ */
-    while( TRUE ) {
-        get_line();
-        if (strncmp(ln, "#end file", 9) == 0)
-            break;
-        if (el == MXELE) {
-            error(ER_TOOMANY_ELEMENTS);
-            continue;
-        }
-        get_word(ln);              /* get a data element  */
-        for (i=0; i < dectr; i++)  /* in dictionary?      */
-            if (strcmp(word, dc[i].dename) == 0)
-                break;
-        if (i == dectr)
-            error(ER_UNKNOWN_ELEMENT);
-        else if (fctr < MXFILS)
-            fileele [fctr] [el++] = i + 1; /* post to file */
-    }
-    if (fctr < MXFILS)
-        fctr++;
+	char *cp, *cp1;
+	int el;
+	while (TRUE)	{
+		get_line();
+		if (strncmp(ln, "#end dictionary", 15) == 0)
+			break;
+		if (dectr == MXELE)	{
+			error(11);
+			continue;
+		}
+		cp = get_word(ln);
+		name_val();
+		for (el = 0; el < dectr; el++)
+			if (strcmp(word, dc[el].dename) == 0)	{
+				error(16);
+				continue;
+			}
+		strcpy(dc[dectr].dename, word);
+		expect_comma(&cp);
+		skip_white(&cp);
+		switch (*cp)	{
+			case 'A':
+			case 'Z':
+			case 'C':
+			case 'N':
+			case 'D':	break;
+			default :	error(4);
+						continue;
+		}
+		dc[dectr].detype = *cp++;
+		expect_comma(&cp);
+		cp = get_word(cp);
+		numb_val();
+		dc[dectr].delen = atoi(word);
+		expect_comma(&cp);
+		skip_white(&cp);
+		if (*cp != '"')	{
+			error(5);
+			continue;
+		}
+		cp1 = cp + 1;
+		while (*cp1 != '"' && *cp1 && *cp1 != '\n')
+			cp1++;
+		if (*cp1++ != '"')	{
+			error(5);
+			continue;
+		}
+		*cp1 = '\0';
+		if ((dc[dectr].demask = malloc((cp1-cp)+1)) == 0)	{
+			error(12);
+			depart(1);
+		}
+		strcpy(dc[dectr].demask, cp);
+		dectr++;
+	}
 }
 
-/* ----------- build the index descriptions ------------- */
-static void keys(void)
+/* ----------- build the file definitions ---------------- */
+static void files()
 {
-    char *cp;
-    int f, el, x, cat = 0;
-    cp = get_word(ln + 5);          /* get the file name   */
-    for (f = 0; f < fctr; f++)      /* in the schema?      */
-        if (strcmp(word, filenames[f]) == 0)
-            break;
-    if (f == fctr) {
-        error(ER_UNKNOWN_FILENAME);
-        return;
-    }
-    for (x = 0; x < MXINDEX; x++) 
-        if (*ndxele [f] [x]  == 0)
-            break;
-    if (x == MXINDEX) {
-        error(ER_TOOMANY_INDEXES);
-        return;
-    }
-    while (cat < MXCAT) {
-        cp = get_word(cp);              /* get index name   */
-        for (el = 0; el < dectr; el++)  /* in dictionary?   */
-            if (strcmp(word, dc[el].dename) == 0)
-                break;
-        if(el == dectr) {
-            error(ER_UNKNOWN_ELEMENT);
-            break;
-        }
-        ndxele [f] [x] [cat++] = el + 1; /* post element */
-        skip_white(&cp);
-        if (*cp++ != ',')
-            break;
-        if (cat == MXCAT) {
-            error(ER_TOOMANY_IN_INDEX);
-            break;
-        }
-    }
+	int i, el = 0;
+	if (fctr == MXFILS)
+		error(17);
+	get_word(ln + 6);				/* get the file name 	*/
+	name_val();		 				/* validate it			*/
+	for (i = 0; i < fctr; i++)		/* already assigned?	*/
+		if (strcmp(word, filename[i]) == 0)
+			error(9); 
+	strcpy(filename[fctr], word);
+	/* ---------- process the file's data elements -------- */
+	while (TRUE)	{
+		get_line();
+		if (strncmp(ln, "#end file", 9) == 0)
+			break;
+		if (el == MXELE)	{
+			error(11);
+			continue;
+		}
+		get_word(ln);				 /* get a data element 	*/
+		for (i = 0; i < dectr; i++)	 /* in dictionary?		*/
+			if (strcmp(word, dc[i].dename) == 0)
+				break;
+		if (i == dectr)
+			error(10);
+		else if (fctr < MXFILS)
+			fileele [fctr] [el++] = i + 1; /* post to file	*/
+	}
+	if (fctr < MXFILS)
+		fctr++;
 }
 
-/* ------- write the data base .h header file:
-             schema enums and struct definitions ---------- */
-static void defout(const char *fname)
+/* ----------- build the index descriptions ------------ */
+static void keys()
 {
-    int f, el, fel;
-    char name [NAMELEN+1];
-    char fn[64];
-
-    strcpy(fn, fname);
-    strcat(fn, ".h");
-    fp = fopen(fn, "w");
-
-    fprintf(fp,"/* -- pg 101 ------ %s ----------------------- */\n", fn);
-    fprintf(fp, "\n#define APPLICATION_H\n");
-
-    /* ----------- ddate elements enums --------- */
-    fprintf(fp, "\ntypedef enum elements {");
-    for (el = 0; el < dectr; el++)
-        fprintf(fp, "\n\t%s%s,", dc[el].dename, el ? "" : "=1"); 
-    fprintf(fp, "\n\tTermElement = 32367");
-    fprintf(fp, "\n} ELEMENT;\n");
-    /* ------- write the file enum statements ------- */
-    fprintf(fp, "\ntypedef enum files {");
-    for (f = 0; f < fctr; f++)
-        fprintf(fp, "\n\t%s,", filenames [f]);
-    fprintf(fp, "\n\tTermFile = 32367");
-    fprintf(fp, "\n} DBFILE;\n");
-    /* ------- write the record structures ---------- */
-    for (f = 0; f < fctr; f++) {
-        lcase(name, filenames [f]);
-        fprintf(fp, "\nstruct %s {", name);
-        el = 0;
-        while ((fel = fileele[f] [el++]) != 0) {
-            lcase(name, dc[fel-1].dename);
-            fprintf(fp, "\n\tchar %s [%d];",
-                    name, dc[fel-1].delen + 1);
-        }
-        fprintf(fp, "\n};\n");
-    }
-    fprintf(fp, "\n#include \"cdata.h\"\n");
-    fclose(fp);
+	char *cp;
+	int f, el, x, cat = 0;
+	cp = get_word(ln + 5);		/* get the file name */
+	for (f = 0; f < fctr; f++)	/* in the schema?	 */
+		if (strcmp(word, filename[f]) == 0)
+			break; 
+	if (f == fctr)	{
+		error(13);
+		return;
+	}
+	for (x = 0; x < MXINDEX; x++)
+		if (*ndxele [f] [x] == 0)
+			break;
+	if (x == MXINDEX)	{
+		error(14);
+		return;
+	}
+	while (cat < MXCAT)	{
+		cp = get_word(cp); 				/* get index name */
+		for (el = 0; el < dectr; el++)	/* in dictionary? */
+			if (strcmp(word, dc[el].dename) == 0)
+				break;
+		if (el == dectr)	{
+			error(10);
+			break;
+		}
+		ndxele [f] [x] [cat++] = el + 1; /* post element */
+		skip_white(&cp);
+		if (*cp++ != ',')		   /* concatenated index? */
+			break;
+		if (cat == MXCAT)	{
+			error(15);
+			break;
+		}
+	}
 }
 
-/* ------- write the daatabase schema source code -------- */
-static void schout(const char *fname)
+/* ---------- write the schema source language ---------- */
+static void schout()
 {
-    int f, el, x, x1, cat, fel;
-    char name [NAMELEN+1];
-    char fn[64];
+	int f, el, x, x1, cat, fel;
+	char name [NAMLEN+1];
 
-    strcpy(fn, fname);
-    strcat(fn, ".c");
-    fp = fopen(fn, "w");
-
-    fprintf(fp, "/* -- pg 103 -------- %s ------------------ */\n", fn);
-    fprintf(fp, "\n#include \"%s.h\"\n", fname);
-
-    /* -------- data element ascii names ---------- */
-    fprintf(fp, "\nconst char *denames [] = {");
-    for (el = 0; el < dectr; el++)
-        fprintf(fp, "\n\t\"\%s\",",dc[el].dename);
-    fprintf(fp, "\n\tNULL\n};\n");
-    /* ------- data element types --------- */
-    fprintf(fp,"\nconst char eltype [] = \"");
-    for (el = 0; el < dectr; el++)
-        putc(dc[el].detype, fp);
-    fprintf(fp, "\";\n");
-     /* ------- data element display masks --------- */
-    fprintf(fp,"\nconst char *elmask [] = {");
-    for (el = 0; el < dectr; el++)
-        fprintf(fp, (el  < dectr-1 ?
-                     "\n\t%s," :
-                     "\n\t%s"), dc[el].demask);
-    fprintf(fp, "\n};\n");
-    free(dc[el].demask);
-    /* ------- write the ascii file name strings -------- */
-    fprintf(fp,"\nconst char *dbfiles [] = {");
-    for (f = 0; f < fctr; f++)
-        fprintf(fp, "\n\t\"%s\",", filenames[f]);
-    fprintf(fp, "\n\tNULL\n};\n");
-
-    /* ------- data element lengths -------- */
-    fprintf(fp,"\nconst int ellen [] = {");
-    for (el = 0; el < dectr; el++) {
-        if((el % 25) == 0)
-            fprintf(fp, "\n\t");
-        fprintf(fp, (el < dectr-1 ? "%d," : "%d"),dc[el].delen);
-    }
-    fprintf(fp, "\n};\n");
-    /* ------- write the file contents arrays ------------ */
-    for (f = 0; f < fctr; f++) {
-        lcase(name, filenames [f]);
-        fprintf(fp, "\n\nconst ELEMENT f_%s [] = {",
-                            name);
-        el = 0;
-        while ((fel = fileele[f] [el++]) != 0) 
-            fprintf(fp, "\n\t%s,", dc[fel-1].dename);
-        fprintf(fp, "\n\t0\n};");
-    }
-    /* ------- write the file list pointer array -------- */
-    fprintf(fp,"\n\nconst ELEMENT *file_ele [] = {");
-    for (f = 0; f < fctr; f++) {
-        lcase(name, filenames [f]);
-        fprintf(fp, "\n\tf_%s,", name);
-    }
-    fprintf(fp, "\n\t0\n};\n");
-    /* ----------- write the index arrays ------------------- */
-    for (f = 0; f < fctr; f++) {
-        lcase(name, filenames [f]);
-        for (x = 0; x < MXINDEX; x++) {
-            if(*ndxele [f] [x] == 0)
-                break;
-        fprintf(fp,
-            "\nconst ELEMENT x%d_%s [] = {",
-                x + 1, name);
-        for (cat = 0; cat < MXCAT; cat++)
-            if (ndxele [f] [x] [cat])
-                fprintf(fp, "\n\t%s,",
-                    dc[ndxele [f] [x] [cat] - 1].dename);
-        fprintf(fp, "\n\t0\n};\n");
-        }
-        fprintf(fp, "\nconst ELEMENT *x_%s [] = {",
-                                                name );
-        for (x1 = 0; x1 < x; x1++)
-            fprintf(fp, "\n\tx%d_%s,", x1 + 1, name);
-        fprintf(fp, "\n\tNULL\n};\n"); 
-    }
-    fprintf(fp, "\n\nconst ELEMENT **index_ele  [] = {");
-    for (f = 0; f < fctr; f++) {
-        lcase(name, filenames [f]);
-        fprintf(fp, "\n\tx_%s,", name);
-    }
-    fprintf(fp, "\n\tNULL\n};\n");
-
-    fprintf(fp, "\n\n#ifdef NULL_IS_DEFINED");
-    fprintf(fp, "\n\t#undef NULL");
-    fprintf(fp, "\n\t#undef NULL_IS_DEFINED");
-    fprintf(fp, "\n#endif\n\n");
-
-    fclose(fp);
+	/*  ---------  data element lengths  ----------  */
+	printf("\n\nint ellen [] = {");
+	for (el = 0; el < dectr; el++)		{
+		if ((el % 25) == 0)
+			printf("\n\t");
+		printf((el < dectr-1 ? "%d," : "%d"),dc[el].delen);
+	}
+	printf("\n};\n");
+	/* ---------- write the file contents arrays ------- */
+	for (f = 0; f < fctr; f++)	{
+		lcase(name, filename [f]);
+		printf("\n\nint f_%s [] = {", name);
+		el = 0;
+		while ((fel = fileele[f] [el++]) != 0)
+			printf("\n\t%s,", dc[fel-1].dename);
+		printf("\n\t0\n};");
+	}
+	/* ------- write the file list pointer array ------- */
+	printf("\n\nint *file_ele [] = {");
+	for (f = 0; f < fctr; f++)	{
+		lcase(name, filename [f]);
+		printf("\n\tf_%s,", name);
+	}
+	printf("\n\t0\n};\n");
+	/* ----------- write the index arrays -------------- */
+	for (f = 0; f < fctr; f++)	{
+		lcase(name, filename [f]);
+		for (x = 0; x < MXINDEX; x++)	{
+			if (*ndxele [f] [x] == 0)
+				break;
+			printf("\nint x%d_%s [] = {", x + 1, name);
+			for (cat = 0; cat < MXCAT; cat++)
+				if (ndxele [f] [x] [cat])
+					printf("\n\t%s,",
+						dc[ndxele [f] [x] [cat] - 1].dename);
+			printf("\n\t0\n};\n");
+		}
+		printf("\nint *x_%s [] = {", name);
+		for (x1 = 0; x1 < x; x1++)
+			printf("\n\tx%d_%s,", x1 + 1, name);
+		printf("\n\t0\n};\n");
+	}
+	printf("\nint **index_ele [] = {");			
+	for (f = 0; f < fctr; f++)	{
+		lcase(name, filename [f]);
+		printf("\n\tx_%s,", name);
+	}
+	printf("\n\t0\n};\n");
 }
 
-/* ------- convert a name to lower case -------------- */
-static void lcase(char *s1, const char *s2)
+
+
+
+/* -- write the schema #defines and struct definitions -- */
+static void defout()
 {
-    while (*s2) {
-        *s1 = tolower(*s2);
-        s1++;
-        s2++;
-    }
-    *s1 = '\0';
+	int f, el, fel;
+	char name [NAMLEN+1];
+
+	/*  --------  data element defines  ---------  */
+	for (el = 0; el < dectr; el++)
+		printf("\n#define %s %d", dc[el].dename, el + 1);
+	putchar('\n');
+	/* ------- write the file #define statements -------- */
+	for (f = 0; f < fctr; f++)
+		printf("\n#define %s %d", filename [f], f);
+	putchar('\n');
+	/* ---------- write the record structures ------------ */
+	for (f = 0; f < fctr; f++)	{
+		lcase(name, filename [f]);
+		printf("\nstruct %s {", name);
+		el = 0;
+		while ((fel = fileele[f] [el++]) != 0)	{
+			lcase(name, dc[fel-1].dename);
+			printf("\n\tchar %s [%d];",
+					name, dc[fel-1].delen + 1);
+		}
+		printf("\n};\n");
+	}
 }
 
-/* --- get a line of data from the scheme input stream --- */
-static void get_line(void)
+/* ----- write the file and data element ascii strings ---- */
+static void strout()
 {
-    char *cp;
-    *ln = '\0';
-    while (*ln == '\0' || *ln == REMARK || *ln == '\n') {
-        cp = fgets(ln, 120, fp);
-        if (cp == NULL) {
-            error(ER_EOF);
-            exit(1);
-        }
-        lnctr++;
-    }
-}
-           
-/* ---------- skip over white spaces ----------------- */
-static void skip_white(char **s)
-{
-    while (iswhite(**s))
-        (*s)++;
-}
+	int el, f;
 
-/* ------- get a word from a line of input ----------- */
-static void *get_word(char *cp)
-{
-    int wl = 0, fst = 0;
-
-    skip_white(&cp);
-    while (*cp && *cp != '\n' &&
-           *cp != ',' &&
-               iswhite(*cp) == 0) {
-        if (wl == NAMELEN && fst == 0) {
-            error(ER_NAME);
-            fst++;
-        }
-        else
-            word [wl++] = *cp++;
-    }
-    word [wl] = '\0';
-    return cp;
+	/*  --------  data element ascii names  ---------  */
+	printf("\nchar *denames [] = {");
+	for (el = 0; el < dectr; el++)
+		printf("\n\t\"%s\",", dc[el].dename);
+	printf("\n\t0\n};\n");
+	/*  --------  data element types  ------------  */
+	printf("\nchar eltype [] = \"");
+	for (el = 0; el < dectr; el++)	
+		putchar(dc[el].detype);
+	printf("\";\n");
+	/*  ----------  data element display masks  ---------  */
+	printf ("\nchar *elmask [] = {");
+	for (el = 0; el < dectr; el++)	
+		printf((el < dectr-1 ?
+				"\n\t%s," :
+				"\n\t%s"),dc[el].demask);
+	printf("\n};\n");
+	/* ------ write the ascii file name strings -------- */
+	printf("\nchar *dbfiles [] = {");
+	for (f = 0; f < fctr; f++)
+		printf("\n\t\"%s\",", filename [f]);
+	printf("\n\t0\n};\n");
 }
 
-/* ------- validate a name --------------------------- */
-static void name_val(void)
+
+
+
+/* -------- convert a name to lower case ---------- */
+static void lcase(s1, s2)
+char *s1, *s2;
 {
-    char *s = word;
-    if (isalpha(*s)) {
-        while (isalpha(*s) || isdigit(*s) || *s == '_') {
-            *s = toupper(*s);
-            s++;
-        }
-        if (*s == '\0')
-            return;
-    }
-    error(ER_NAME);
+	while (*s2)	{
+		*s1 = tolower(*s2);
+		s1++;
+		s2++;
+	}
+	*s1 = '\0';
 }
 
-/* ------- validate a number ------------------------- */
-static void numb_val(void)
+/* -----------  errors  -------------- */
+static void error(n)
+int n;
 {
-    char *s = word;
-    do {
-        if (isdigit(*s++) == 0) {
-            error(ER_LENGTH);
-            break;
-        }
-    } while (*s);
+	static int erct = 0;
+	static int erlin = 0;
+
+	if (erlin != lnctr)	{
+		erlin = lnctr;
+		fprintf(stderr, "\nLine %d: %s", lnctr, ln);
+	}
+	fprintf(stderr, "\n  Error %d: %s", n, ers[n-1]);
+	if (erct++ == 5)	{
+		erct =0;
+		fprintf(stderr, "\nContinue? (y/n) ... ");
+		if (tolower(getc(stderr)) != 'y')
+			depart(1);
+	}
 }
 
-/* ------- expect a comma next ----------------------- */
-static void expect_comma(char **cp)
+/* --- get a line of data from the schema input stream --- */
+static void get_line()
 {
-    skip_white(cp);
-    if (*(*cp)++ != ',')
-        error(ER_COMMA);
+	*ln = '\0';
+	while (*ln == '\0' || *ln == REMARK || *ln == '\n')	{
+		if (fgets(ln,120,stdin) == 0)	{
+			error(8);
+			depart(1);
+		}
+		lnctr++;
+	}
 }
 
-/* --------------- errors ---------------------------- */
-static void error(const enum error_codes n)
+/* ---------- skip over white space --------- */
+static void skip_white(s)
+char **s;
 {
-    static int erct = 0;
-    static int erlin = 0;
-    int err;
+	while (iswhite(**s))
+		(*s)++;
+}
 
-    for (err = 0; ers[err].ec != ER_TERMINAL; err++)
-        if (n == ers[err].ec)
-            break;
-    if (erlin != lnctr) {
-        erlin = lnctr;
-        fprintf(stderr, "\nLine: %d %s", lnctr, ln);
-    }
-    fprintf(stderr, "Error %d: %s\n", n, ers[err].errormsg);
-    if (erct++ == 5) {
-        erct =0;
-        fprintf(stderr, "\nContinue? (y/n) ... ");
-        if (tolower(getc(stdin)) != 'y')
-            exit(1);
-    }
-}  
+/* ----------- get a word from a line of input ----------- */
+static char *get_word(cp)
+char *cp;
+{
+	int wl = 0, fst = 0;
+
+	skip_white(&cp);
+	while (*cp && *cp != '\n' &&
+			*cp != ',' &&
+				iswhite(*cp) == 0)	{
+		if (wl == NAMLEN && fst == 0)	{
+			error(1);
+			fst++;
+		}
+		else
+			word [wl++] = *cp++;
+	}
+	word [wl] = '\0';
+	return cp;
+}
+
+/* ---------- validate a name --------------- */
+static void name_val()
+{
+	char *s = word;
+	if (isalpha(*s))	{
+		while (isalpha(*s) || isdigit(*s) || *s == '_')	{
+			*s = toupper(*s);
+			s++;
+		}
+		if (*s == '\0')
+			return;
+	}
+	error(1);
+}
+
+/* ---------- validate a number ------------- */
+static void numb_val()
+{
+	char *s = word;
+	do	{
+		if (isdigit(*s++) == 0)	{
+			error(2);
+			break;
+		}
+	} while (*s);
+}
+
+/* ----------- expect a comma next ---------- */
+static void expect_comma(cp)
+char **cp;
+{
+	skip_white(cp);
+	if (*(*cp)++ != ',')
+		error(3);
+}
+
+/* --------- terminate schema program ------------- */
+static void depart(n)
+int n;
+{
+	int el;
+
+	for (el = 0; el < dectr; el++)
+		free(dc[el].demask);
+	exit(n);
+}
+
+#if COMPILER == WIZARD
+/* --- strncmp function to replace non-standard version --- */
+int strncmp(s1, s2, n)
+char *s1, *s2;
+{
+	int i;
+
+	while (n--)
+		if (i = (*s1++ - *s2++))
+			return i;
+	return 0;
+}
+#endif
+
+

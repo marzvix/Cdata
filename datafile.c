@@ -1,118 +1,160 @@
-/* -- pg 142 ---- datafile.c ----------------------------- */
+/* ---------------- datafile.c -------------------------- */
 
 #include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
 #include "cdata.h"
-#include "datafile.h"
 
 #define flocate(r,l) ((long)(sizeof(FHEADER)+(((r)-1)*(l))))
 
-static FILE *fp[MXFILS];
-FHEADER fh[MXFILS];
+static int handle [MXFILS];
+FHEADER fh [MXFILS];
 
-/* ---------- crete a file ------------------------- */
-void file_create(char *name /* file name */, int len /* record lenght */)
+/* --------- create a file ----------- */
+void file_create(name, len)
+char *name;
+int len;
 {
-  FILE *fp;         
-  FHEADER hd;       
+	int fp;
+	FHEADER hd;
+#if COMPILER == MICROSOFT
+	extern int _iomode;
+	_iomode = 0x8000;
+#endif
+#if COMPILER == LATTICE
+	extern int _iomode;
+	_iomode = 0x8000;
+#endif
 
-    remove(name);
-    fp = fopen(name, "wb");
-    hd.next_record = 1;
-    hd.first_record = 0;
-    hd.record_length = len;
-    fwrite((char *) &hd, sizeof hd, 1, fp);
-    fclose(fp);
+	unlink(name);
+	fp = creat(name, CMODE);
+	close(fp);
+	fp = open(name, OPENMODE);
+	hd.next_record = 1;
+	hd.first_record = 0;
+	hd.record_length = len;
+	write(fp, (char *) &hd, sizeof hd);
+	close(fp);
 }
 
-/* ---------- open a file ------------------------- */
-int file_open(char *name /* filename */)
-{
-    int fno;
 
-    for (fno = 0; fno < MXFILS; fno++)
-        if (fp[fno] == NULL)
-            break;
-    if (fno == MXFILS)
-        return ERROR;
-    if ((fp[fno] = fopen(name, "rb+")) == NULL)
-        return ERROR;
-    fseek(fp[fno], 0L, SEEK_SET);
-    fread((char*) &fh[fno], sizeof(FHEADER), 1, fp[fno]);
-    return fno;
+
+
+/* --------------  open a file ---------------- */
+int file_open(name)
+char *name;
+{
+	int fp;
+#if COMPILER == MICROSOFT
+	extern int _iomode;
+	_iomode = 0x8000;
+#endif
+#if COMPILER == LATTICE
+	extern int _iomode;
+	_iomode = 0x8000;
+#endif
+
+	for (fp = 0; fp < MXFILS; fp++)
+		if (handle [fp] == 0)
+			break;
+	if (fp == MXFILS)
+		return ERROR;
+	if ((handle [fp] = open(name, OPENMODE)) == ERROR)
+		return ERROR;
+	lseek(handle [fp], 0L, 0);
+	read(handle [fp], (char *) &fh [fp], sizeof(FHEADER));
+	return fp;
 }
 
-/* ---------- close a file ------------------------- */
-void file_close(int fno /* logical file handle */)
+/* --------------- close a file ----------------- */
+void file_close(fp)
+int fp;
 {
-    fseek(fp[fno], 0L, SEEK_SET);
-    fwrite((char *) &fh[fno], sizeof(FHEADER), 1, fp[fno]);
-    fclose(fp[fno]);
-    fp[fno] = NULL;
+	lseek(handle [fp], 0L, 0);
+	write(handle [fp], (char *) &fh [fp], sizeof(FHEADER));
+	close(handle [fp]);
+	handle [fp] = 0;
 }
 
-/* ---------- create a new record -------------------- */
-RPTR new_record(int fno /* logical file handle */, void *bf /* record buffer */)
-{
-    RPTR rcdno;
-    FHEADER *c;
 
-    if (fh[fno].first_record)   {
-        rcdno = fh[fno].first_record;
-        if ((c = malloc(fh[fno].record_length)) == NULL)    {
-            errno = D_OM;
-            dberror();
-        }
-        get_record(fno, rcdno, c);
-        fh[fno].first_record = c->next_record;
-        free(c);
-    }
-    else
-        rcdno = fh[fno].next_record++;
-    put_record(fno, rcdno, bf);
-    return rcdno;
+
+
+
+/* -------------- create a new record ------------- */
+RPTR new_record(fp, bf)
+int fp;
+char *bf;
+{
+	RPTR rcdno;
+	extern char *malloc();
+	FHEADER *c;
+	extern int free();
+
+	if (fh [fp].first_record)	{
+		rcdno = fh [fp].first_record;
+		if ((c = (FHEADER *)
+				malloc(fh [fp].record_length)) == NULL)	{
+			errno = D_OM;
+			dberror();
+		}
+		get_record(fp, rcdno, c);
+		fh [fp].first_record = c->next_record;
+		free(c);
+	}
+	else
+		rcdno = fh [fp].next_record++;
+	put_record(fp, rcdno, bf);
+	return rcdno;
 }
 
-/* ---------- retrieve a record -------------------- */
-int get_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */, void *bf /* record buffer */)
+/* ---------------- retrieve a record -------------- */
+int get_record(fp, rcdno, bf)
+int fp;
+RPTR rcdno;
+char *bf;
 {
-    if (rcdno >= fh[fno].next_record)
-        return ERROR;
-    fseek(fp[fno],
-          flocate(rcdno, fh[fno].record_length), SEEK_SET);
-    fread(bf, fh[fno].record_length, 1, fp[fno]);
-    return OK;
+	if (rcdno >= fh [fp].next_record)
+		return ERROR;
+	lseek(handle [fp],
+			flocate(rcdno, fh [fp].record_length), 0);
+	read(handle [fp], bf, fh [fp].record_length);
+	return OK;
 }
 
-/* ---------- retrieve a record -------------------- */   
-int put_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */, void *bf /* record buffer */)
+/* ---------------- rewrite a record -------------- */
+int put_record(fp, rcdno, bf)
+int fp;
+RPTR rcdno;
+char *bf;
 {
-    if (rcdno >= fh[fno].next_record)
-        return ERROR;
-    fseek(fp[fno],
-          flocate(rcdno, fh[fno].record_length), SEEK_SET);
-    fwrite(bf, fh[fno].record_length, 1, fp[fno]);
-    return OK;
+	if (rcdno > fh [fp].next_record)
+		return ERROR;
+	lseek(handle [fp],
+				flocate(rcdno, fh [fp].record_length), 0);
+	write(handle [fp], bf, fh [fp].record_length);
+	return OK;
 }
 
-int delete_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */)
+/* -------------- delete a record ---------------- */
+int delete_record(fp, rcdno)
+int fp;
+RPTR rcdno;
 {
-    FHEADER *bf;
+	FHEADER *bf;
+	extern char *malloc();
 
-    if (rcdno >= fh[fno].next_record)
-        return ERROR;
-    if ((bf = (FHEADER *)
-         malloc(fh[fno].record_length)) == NULL)   {
-        errno = D_OM;
-        dberror();
-    }
-    memset(bf, '\0', fh[fno].record_length);
-    bf->next_record = fh[fno].first_record;
-    bf->first_record = -1;
-    fh[fno].first_record = rcdno;
-    put_record(fno, rcdno, bf);
-    free(bf);
-    return OK;
+	if (rcdno > fh [fp].next_record)
+		return ERROR;
+	if ((bf = (FHEADER *)
+			malloc(fh [fp].record_length)) == NULL)	{
+		errno = D_OM;
+		dberror();
+	}
+	set_mem(bf, fh [fp].record_length, '\0');
+	bf->next_record = fh [fp].first_record;
+	bf->first_record = -1;
+	fh [fp].first_record = rcdno;
+	put_record(fp, rcdno, bf);
+	free(bf);
+	return OK;
 }
+
+
