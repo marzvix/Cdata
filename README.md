@@ -1,3 +1,28 @@
+qua, 18 de dez de 2019 14:43:58
+
+Alguns ajustes:
+
+1. o programa deve ser compilado com o TCDBMS.BAT: o make do
+   livro é incompatível com os códigos do CDATA.ZIP
+
+2. os códigos em c estão todos com armaduras para vários
+   compiladores dos (isso vai me indicar onde tenho que
+   alterar para compilar com o gnu c)
+
+3. o formato de geração do schema é diferente do que foi
+   explicado no livro. O autor usa piping para passar
+   os arquivo de schema e gera tres arquivos .c1, .c2 e .c3
+   que são usados no código, isso vai requerer comparações
+   com a codebase dos
+
+4. Esse é um branch terminal, vou transferir-me para o master
+   e fazer as cópias dos arquivo sobre a codebase do cygwin
+   e continuar no ambiente cygwin que é mais confortável
+   do que o do dosbox.
+5. Quanto tiver funcionado, no cygwin retorno ajustando essa
+   codebase e faço um merge com as armaduras para todos
+   os compiladores (dos, linux, windows, etc)
+
 qua, 18 de dez de 2019 14:00:43
 
 Fiz o merge final.
