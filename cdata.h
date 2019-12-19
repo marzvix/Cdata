@@ -92,6 +92,12 @@ extern int errno;
 #define CMODE 0
 #endif
 
+#if COMPILER == GCC
+#include <stdlib.h>
+#define OPENMODE O_RDWR
+#define CMODE 0666
+#endif
+
 long lseek();
 
 #define NODE 512	/* length of a B-tree node		*/
@@ -144,3 +150,6 @@ typedef struct fhdr	{
 	RPTR next_record;
 	int record_length;
 } FHEADER;
+
+typedef int DBFILE;
+typedef int ELEMENT;

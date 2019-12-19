@@ -34,7 +34,7 @@ int fileele [MXFILS] [MXELE];		/* elements in files		*/
 int ndxele [MXFILS] [MXINDEX] [MXCAT];	/* indices			*/
 
 char word[NAMLEN+1];
-// char *malloc();
+/* char *malloc(); */
 int lnctr = 0;	/* input stream line counter */
 char ln [160];
 

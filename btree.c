@@ -39,12 +39,27 @@ RPTR currnode 	[MXTREES];	/* node number of current key  */
 int currkno 	[MXTREES];	/* key number of current key   */
 int trx;					/* current tree */
 
-char *malloc(), *childptr();
-void redist(),adopt(),implode(),
+/* char *malloc(), */
+static char *childptr();
+static void redist(),adopt(),implode(),
 	 read_node(),write_node(),bseek();
-RPTR firstkey(),lastkey(),scannext(),scanprev(),
+static RPTR firstkey(),lastkey(),scannext(),scanprev(),
 	 leaflevel(),nextnode(),fileaddr();
 
+static int btreescan();
+static int nodescan();
+static int compare_keys();
+static RPTR fileaddr();
+static void implode();
+static void adopt();
+static RPTR nextnode();
+static RPTR scannext();
+static RPTR scanprev();
+static char *childptr();
+static void read_node();
+static void write_node();
+static void bseek();
+  
 /* -------- initiate b-tree processing ---------- */
 int btree_init(ndx_name)
 char *ndx_name;
@@ -968,4 +983,3 @@ RPTR nd;
 		dberror();
 	}
 }
-

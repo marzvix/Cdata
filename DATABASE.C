@@ -1,25 +1,37 @@
 /* ----------------- database.c ---------------------- */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cdata.h"
 #include "keys.h"
 
-void build_b();			/* Builds a new B-tree				*/
-RPTR locate();        	/* Searches a B-tree for a key      */
-RPTR nextkey();        	/* Gets address of the next key     */
-RPTR prevkey();        	/* Gets address of the previous key */
-RPTR firstkey();      	/* Gets address of first key        */
-RPTR lastkey();       	/* Gets address of last key         */
-RPTR currkey();	    	/* Gets address of current key	  	*/
-void file_close();      /* Closes a data file               */
-RPTR new_record();      /* Adds a record to a file          */
-char *malloc();
-void init_index(), cls_index(), del_indexes();
+void build_b();		/* Builds a new B-tree			*/
+RPTR locate();		/* Searches a B-tree for a key		*/
+RPTR nextkey();		/* Gets address of the next key		*/
+RPTR prevkey();		/* Gets address of the previous key	*/
+RPTR firstkey();	/* Gets address of first key		*/
+RPTR lastkey();		/* Gets address of last key		*/
+RPTR currkey();		/* Gets address of current key		*/
+void file_close();	/* Closes a data file			*/
+RPTR new_record();	/* Adds a record to a file		*/
+/* char *malloc(); */
+static void init_index();
+static void cls_index();
+static void del_indexes();
+static int treeno();
+static int relate_rcd();
+static int data_in();
+static int getrcd();
+static int rel_rcd();
 
-int db_opened = FALSE;	/* data base opened indicator       */
-int curr_fd [MXFILS];	/* current file descriptor	    	*/
-RPTR curr_a [MXFILS];	/* current record file address	    */
-char *bfs [MXFILS];		/* file i/o buffers */
+
+
+
+int db_opened = FALSE;	/* data base opened indicator		*/
+int curr_fd [MXFILS];	/* current file descriptor		*/
+RPTR curr_a [MXFILS];	/* current record file address		*/
+char *bfs [MXFILS];	/* file i/o buffers */
 int bfd [MXFILS] [MXINDEX];
 char dbpath [64];
 int notice_posted = 0;
@@ -78,7 +90,7 @@ char *key;		/* key value			*/
 char *bf;		/* buffer for record	*/
 {
 	RPTR ad;
-	
+
 	if ((ad = locate(treeno(f,k), key)) == 0)	{
 		errno = D_NF;
 		return ERROR;
@@ -106,7 +118,7 @@ int k;			/* key number			*/
 char *bf;		/* buffer for record	*/
 {
 	RPTR ad;
-	
+
 	if ((ad = firstkey(treeno(f,k))) == 0)	{
 		errno = D_EOF;
 		return ERROR;
@@ -121,7 +133,7 @@ int k;			/* key number			*/
 char *bf;		/* buffer for record	*/
 {
 	RPTR ad;
-	
+
 	if ((ad = lastkey(treeno(f,k))) == 0)	{
 		errno = D_BOF;
 		return ERROR;
@@ -136,7 +148,7 @@ int k;			/* key number			*/
 char *bf;		/* buffer for record	*/
 {
 	RPTR ad;
-	
+
 	if ((ad = nextkey(treeno(f, k))) == 0)	{
 		errno = D_EOF;
 		return ERROR;
@@ -151,7 +163,7 @@ int k;			/* key number			*/
 char *bf;		/* buffer for record	*/
 {
 	RPTR ad;
-	
+
 	if ((ad = prevkey(treeno(f,k))) == 0)	{
 		errno = D_BOF;
 		return ERROR;
@@ -273,10 +285,6 @@ int f;
 {
 	return epos(0, file_ele [f]);
 }
-
-
-
-
 
 /* ---------- initialize a file record buffer ------------ */
 void init_rcd(f, bf)
@@ -416,10 +424,10 @@ RPTR ad;
 				bf +
 			epos(*(*(index_ele[f]+x)+(i++)),file_ele [f]));
 		if (insertkey(bfd [f] [x], key, ad, !x) == ERROR)
-  			return ERROR;
+			return ERROR;
 		x++;
 	}
-  	return OK;
+	return OK;
 }
 
 /* --- delete index values in a record from the indices --- */
@@ -459,7 +467,7 @@ int f, k;
 
 
 /* ---- validate the contents of a record where its file is
-        related to another file in the data base ---------- */
+	related to another file in the data base ---------- */
 static int relate_rcd(f, bf)
 int f;
 char *bf;
@@ -633,4 +641,3 @@ char *c1, *c2;
 	}
 	*c2 = '\0';
 }
-
