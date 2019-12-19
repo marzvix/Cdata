@@ -35,5 +35,3 @@ int *list;					/* the resulting list */
 	*list = 0;
 	return OK;
 }
-
-

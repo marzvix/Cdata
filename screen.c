@@ -1,5 +1,6 @@
 /* ----------------- screen.c ------------------------- */
 #include <stdio.h>
+#include <string.h>
 #include "cdata.h"
 #include "keys.h"
 
@@ -16,10 +17,18 @@ struct {
 int *elist;
 char *bf;
 char *tname;
-void right_justify(),
+static void right_justify(),
      right_justify_zero_fill(), left_justify_zero_fill(),
 	 disp_element(), insert_status(),
 	 put_fchar(), data_coord();
+
+static int elp();
+static int no_flds();
+static int read_element();
+static int validate_date();
+
+
+
 
 /* ----------- initialize the screen process ------------- */
 void init_screen(name, els, bfr)
@@ -412,4 +421,3 @@ int c;
 {
 	put_char(c == ' ' ? '_' : c);
 }
-

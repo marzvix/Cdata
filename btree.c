@@ -43,9 +43,11 @@ int trx;					/* current tree */
 static char *childptr();
 static void redist(),adopt(),implode(),
 	 read_node(),write_node(),bseek();
-static RPTR firstkey(),lastkey(),scannext(),scanprev(),
-	 leaflevel(),nextnode(),fileaddr();
 
+RPTR firstkey();
+RPTR lastkey();
+
+static RPTR leaflevel();
 static int btreescan();
 static int nodescan();
 static int compare_keys();

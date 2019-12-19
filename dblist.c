@@ -1,8 +1,9 @@
 /* --------------------- dblist.c ------------------------- */
 #include <stdio.h>
+#include <stdlib.h>
 #include "cdata.h"
-extern char *malloc();
-extern int free();
+/* extern char *malloc(); */
+/* extern int free(); */
 
 void dblist(fd, inter, f, k, list)
 FILE *fd;	/* output file */
@@ -37,5 +38,3 @@ int *list;	/* list of elements */
 	}
 	free(bf);
 }
-
-

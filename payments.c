@@ -1,12 +1,14 @@
 /* ------------------ payments.c --------------------- */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "keys.h"
 #include "cdata.h"
 #include "cbs.c1"
 
 char *sc;
-char *malloc();
+/* char *malloc(); */
 int fl[] = {CLIENTS, -1};
 int els [] =
 	{CLIENT_NO, CLIENT_NAME, AMT_DUE, PAYMENT, DATE_PAID, 0};
@@ -69,5 +71,3 @@ char *s;
 	tally();
 	return OK;
 }
-
-

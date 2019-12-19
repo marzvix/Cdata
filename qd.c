@@ -4,6 +4,8 @@
  * and the file is updated based upon the data entered.
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "keys.h"
 #include "cdata.h"
 
@@ -13,12 +15,22 @@ char *rb;				/* record buffer */
 char *hb;				/* hold buffer */
 char *sc;				/* screen buffer   */
 int len;				/* record length   */
-char *malloc();
+/* char *malloc(); */
 int fl[] = {0, -1};
 int iplist [MXELE+1];
 int *els;
-void query(), rcdin(), rcdout(), set_trap(), clear_record();
-int key_entry();
+
+static void query();
+static void clear_record();
+static void rcdin();
+static void rcdout();
+static int empty();
+static int same();
+static void set_trap();
+static int key_entry();
+
+
+
 
 main(argc, argv)
 int argc;
@@ -236,5 +248,3 @@ char *s;
 	tally();
 	return OK;
 }
-
-

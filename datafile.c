@@ -1,6 +1,8 @@
 /* ---------------- datafile.c -------------------------- */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "cdata.h"
 
 #define flocate(r,l) ((long)(sizeof(FHEADER)+(((r)-1)*(l))))
@@ -84,9 +86,9 @@ int fp;
 char *bf;
 {
 	RPTR rcdno;
-	extern char *malloc();
+	/* extern char *malloc(); */
 	FHEADER *c;
-	extern int free();
+	/* extern int free(); */
 
 	if (fh [fp].first_record)	{
 		rcdno = fh [fp].first_record;
@@ -139,7 +141,7 @@ int fp;
 RPTR rcdno;
 {
 	FHEADER *bf;
-	extern char *malloc();
+	/* extern char *malloc(); */
 
 	if (rcdno > fh [fp].next_record)
 		return ERROR;
@@ -156,5 +158,3 @@ RPTR rcdno;
 	free(bf);
 	return OK;
 }
-
-

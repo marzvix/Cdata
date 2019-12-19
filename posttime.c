@@ -1,12 +1,14 @@
 /* ------------------- posttime.c ---------------------- */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "keys.h"
 #include "cdata.h"
 #include "cbs.c1"
 
 char *sc;
-char *malloc();
+/* char *malloc(); */
 int fl[] = {CLIENTS, CONSULTANTS, PROJECTS, ASSIGNMENTS, -1};
 int els [] = {CONSULTANT_NO, CONSULTANT_NAME, 
 				PROJECT_NO, PROJECT_NAME, HOURS, EXPENSE, 0};
@@ -99,5 +101,3 @@ char *s;
 	find_rcd(CLIENTS, 1, pr.client_no, &cl);
 	return OK;
 }
-
-
