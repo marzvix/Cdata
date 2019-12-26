@@ -1,4 +1,21 @@
-qua, 18 de dez de 2019 15:02:52
+* qua, 18 de dez de 2019 23:12:48
+
+Ok, tudo migrado e compilado.
+
+Observações:
+
+1. O código do livro é mais moderno e enxuto
+   (apeser da minha codebase estar bugada)
+2. Usei chaves de compilação para minimizar os problemas
+   basicamente -x c (compila codigo c em vez de cpp)
+   e o controle com o define
+3. A tela apresentou o mesmo problema que eu havia notado
+   no iniício: o sistema tem que ser ajustado e eu quero
+   evitar o curses nessa etapa, portanto vou
+   reaproveitar o código de testes com o tty que fiz
+   e essa vai ser a primeira alteração da codebase original
+
+* qua, 18 de dez de 2019 15:02:52
 
 Merge do master com a codebase CDATA.ZIP
 
@@ -33,14 +50,14 @@ Alguns ajustes:
    codebase e faço um merge com as armaduras para todos
    os compiladores (dos, linux, windows, etc)
 
-qua, 18 de dez de 2019 14:00:43
+* qua, 18 de dez de 2019 14:00:43
 
 Fiz o merge final.
 Agora sigo daqui com os fontes originais e corretos para
 conversao e testes com o cygwin.
 
 
-Qua, 18 de dez de 2019 13:14:28
+* Qua, 18 de dez de 2019 13:14:28
 
 Este BRANCH DOS foi criado hoje, mas estava sem controle
 do git desde do ultimo dia 05.

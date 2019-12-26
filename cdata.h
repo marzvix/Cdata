@@ -132,7 +132,7 @@ extern int **index_ele [];		/* index data elements	*/
 void mov_mem(), set_mem(), fatal();
 void cls_file();
 void build_b();
-void put_char(), clear_screen(), cursor();
+
 void error_message(), clear_notice(), post_notice();
 
 /* ------------- data base function definitions ---------- */

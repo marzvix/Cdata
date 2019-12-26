@@ -1,5 +1,4 @@
 /* -------- test screen --------------------------------- */
-
 #include <errno.h>
 #include "cdata.h"
 #include "screen.h"

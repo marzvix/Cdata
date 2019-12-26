@@ -71,10 +71,12 @@ cdata.lib: sys.o \
 
 notused: cdata.o sort.o
 
-cbs.c: schema cbs.c1 cbs.c2 cbs.c3
+cbs.c1 cbs.c2 cbs.c3: cbs.sch
 	./schema <cbs.sch >cbs.c1 -1
 	./schema <cbs.sch >cbs.c2 -2
 	./schema <cbs.sch >cbs.c3 -3
+
+cbs.c: schema cbs.c1 cbs.c2 cbs.c3
 	echo '#include "cbs.c1"'> cbs.c
 	echo '#include "cbs.c2"'>> cbs.c
 	echo '#include "cbs.c3"'>> cbs.c
@@ -156,13 +158,32 @@ invoice.o  : invoice.c  		    # cbs.h
 run:
 	./sys
 
-clean:
-	$(RM) *~
-	$(RM) *.o
-	$(RM) *.exe
-	$(RM) *.lib
-	$(RM) *.stackdump
-	$(RM) schema.exe
-	$(RM) schema.o
+.PHONY: clean cleandxs cleandb cleanexes cleanobjs cleansrcs\
+	deepclean
+
+cleansrcs:
 	$(RM) cbs.h
 	$(RM) cbs.c
+	$(RM) cbs.c1
+	$(RM) cbs.c2
+	$(RM) cbs.c3
+
+cleanobjs:
+	$(RM) *.o
+	$(RM) *.obj
+
+cleanexes:
+	$(RM) *.exe
+
+cleandxs:
+	$(RM) *.x??
+
+cleandb:
+	$(RM) *.dat
+
+clean:
+	$(RM) *~
+	$(RM) *.lib
+	$(RM) *.stackdump
+
+deepclean: clean cleandxs cleandb cleanexes cleanobjs cleansrcs	

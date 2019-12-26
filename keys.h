@@ -20,6 +20,7 @@
 #define UP	200
 #define PGUP	201
 #define BS	203
+#define BWD	204
 #define FWD	205
 #define END	207
 #define DN	208
