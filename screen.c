@@ -142,7 +142,7 @@ int data_entry(void)
 	break;
       case UP:               /* cursor up key */
       case BS:               /* back space */
-	if (field_ptr+1 == 0)
+	if (field_ptr == 0)
 	  field_ptr = field_ctr - 1;
 	else
 	  field_ptr--;
@@ -432,7 +432,7 @@ static void database_error(void)
      "Record not found",
      "No prior record",
      "End of file",
-     "Beggining of file",
+     "Beginning of file",
      "Record already exists",
      "Not enough memory",
      "Index corrupted",
@@ -465,7 +465,6 @@ static int endstroke(int c)
 
   case UP:        /* cursor movmente keys */
   case DN:
-
     
   case '\r':      /* standard ASCII vales */
   case '\n':
@@ -474,6 +473,5 @@ static int endstroke(int c)
     return TRUE;
   default:
     return FALSE;
-    
   }
 }
