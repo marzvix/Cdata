@@ -76,7 +76,7 @@ RPTR new_record(int fno /* logical file handle */, void *bf /* record buffer */)
 }
 
 /* ---------- retrieve a record -------------------- */
-int get_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */, void *bf /* record buffer */)
+int get_record(int fno, RPTR rcdno, void *bf)
 {
     if (rcdno >= fh[fno].next_record)
         return ERROR;
@@ -86,10 +86,10 @@ int get_record(int fno /* logical file handle */, RPTR rcdno /* logical record n
     return OK;
 }
 
-/* ---------- retrieve a record -------------------- */   
-int put_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */, void *bf /* record buffer */)
+/* ---------- rewrite  a record -------------------- */   
+int put_record(int fno, RPTR rcdno , void *bf )
 {
-    if (rcdno >= fh[fno].next_record)
+    if (rcdno > fh[fno].next_record)
         return ERROR;
     fseek(fp[fno],
           flocate(rcdno, fh[fno].record_length), SEEK_SET);
@@ -97,11 +97,12 @@ int put_record(int fno /* logical file handle */, RPTR rcdno /* logical record n
     return OK;
 }
 
-int delete_record(int fno /* logical file handle */, RPTR rcdno /* logical record number */)
+/* ---------- delete a record ---------------------- */   
+int delete_record(int fno, RPTR rcdno)
 {
     FHEADER *bf;
 
-    if (rcdno >= fh[fno].next_record)
+    if (rcdno > fh[fno].next_record)
         return ERROR;
     if ((bf = (FHEADER *)
          malloc(fh[fno].record_length)) == NULL)   {
