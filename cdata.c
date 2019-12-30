@@ -108,7 +108,7 @@ int last_rcd(DBFILE f, int k, void *bf)
     RPTR ad;
 
     if ((ad = lastkey(treeno(f,k))) == 0) {
-        errno = D_NF;
+        errno = D_BOF;
         return ERROR;
     }
     return getrcd(f, ad, bf);
@@ -378,7 +378,7 @@ static void del_indexes(DBFILE f, RPTR ad)
     deletekey(bfd [f] [x++], key, ad);
   }
   free(bf);
-}
+ }
 
 /* ---- validate the contents of a record where is files is  
         related  to another file in the data base -------- */
@@ -400,7 +400,7 @@ static int relate_rcd(DBFILE f, void *bf)
 	    if (curr_fd[fx] == -1)   {
 	      *ff = fx;
 	      db_open(dbpath, ff);
-		}
+	    }
 	    if (verify_rcd(fx, 1, cp) == ERROR)
 	      return ERROR;
 	  }
