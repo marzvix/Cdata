@@ -10,3 +10,4 @@ attic/**.*
 **/*.lib
 **/*.x??
 **/*.dat
+cygwin1.dll

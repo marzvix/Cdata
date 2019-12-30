@@ -74,27 +74,27 @@ static void query(void)
   while (term != ESC) {
     term = data_entry();
     switch (term)    {
-      /* ------------ GO ---------------- */
+    /* ------------ GO ---------------- */
     case F1: rcdout();
-	       break;
-	       /* ------- first record ----------- */
+      break;
+    /* ------- first record ----------- */
     case HOME: rcdout();
       if (first_rcd(file, 1, rb) == ERROR)
 	post_notice("Empty file");
       else
 	rcdin();
       break;
-      /* ------- first record ----------- */
+    /* ------- first record ----------- */
     case END: rcdout();
       if (last_rcd(file, 1, rb) == ERROR)
 	post_notice("Empty file");
       else
 	rcdin();
       break;
-      /* ------- previous record -------- */
+    /* ------- previous record -------- */
     case PGUP:  rcdout();
       if (prev_rcd(file, 1, rb) == ERROR) {
-	post_notice("Beggining of file");
+	post_notice("Beginning of file");
 	if (first_rcd(file, 1, rb) ==
 	    ERROR)   {
 	  post_notice("Empty file");
@@ -103,7 +103,7 @@ static void query(void)
       }
       rcdin();
       break;
-      /* ------- next record ------------ */
+    /* ------- next record ------------ */
     case PGDN:  rcdout();
       if (next_rcd(file, 1, rb) == ERROR)    {
 	post_notice("At end of file");
@@ -153,7 +153,7 @@ static void rcdin(void)
   int i = 0;
 
   if (empty(rb, rlen(file)) == 0) {
-    rcd_fill(sc, rb, els, file_ele[file]);
+    rcd_fill(sc, rb, file_ele[file], els);
     memmove(hb, rb, rlen(file));
     existing_record = TRUE;
     while (index_ele [file] [0] [i])
