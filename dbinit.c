@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "cdata.h"
 #include "datafile.h"
-
+#pragma GCC diagnostic ignored "-Wmain"
 void main(void)
 {
   int f = 0;
@@ -18,7 +18,7 @@ void main(void)
   while (dbfiles [f]) {
     sprintf(fname, "%.8s.dat", dbfiles [f]);
     file_create(fname, rlen(f));
-    printf("\nCreating file %s with lenght %s",
+    printf("\nCreating file %s with lenght %d",
 	   fname, rlen(f));
     build_index("", f);
     f++;

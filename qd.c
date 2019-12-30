@@ -1,4 +1,4 @@
-/* ---------------- qd.c --------------------------------- */
+/* -- pg 191 ------ qd.c --------------------------------- */
 /* A query program.  Enter the name of the data base file and
  * (optionally) a list of data elements. A screen is buit
  * and the file is update based upon the data entered.
@@ -29,7 +29,7 @@ static int empty(char *, int);
 static int same(void);
 static void set_trap(void);
 static int key_entry(char *);
-
+#pragma GCC diagnostic ignored "-Wmain"
 void main(int argc, char *argv[])
 {
   if (argc > 1)    {
@@ -53,8 +53,8 @@ void main(int argc, char *argv[])
       }
       init_rcd(file, rb);
       init_rcd(file, hb);
-      init_screen(argv[1], els, sc);
-      query();
+      init_screen(argv[1], els, sc); 
+      query(); 
       free(hb);
       free(rb);
       free(sc);
@@ -208,7 +208,7 @@ static void set_trap(void)
 {
   int i = 0;
 
-  while (index_ele [file] [0] [1])
+  while (index_ele [file] [0] [i])
     i++;
   edit(index_ele [file] [0] [i-1], key_entry);
 }

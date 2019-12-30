@@ -41,7 +41,7 @@ void db_open(const char *path, const DBFILE *fl)
     }
     strcpy(dbpath, path);
     while(*fl != -1)    {
-        sprintf(fnm, "s%.8s.dat", path, dbfiles [*fl]);
+        sprintf(fnm, "%s%.8s.dat", path, dbfiles [*fl]);
         curr_fd [*fl] = file_open(fnm);
         init_index(path, *fl);
         if ((bfs [*fl] = malloc(rlen(*fl))) == NULL)   {
@@ -191,7 +191,7 @@ int seqrcd(DBFILE f, void *bf)
 
   do {
     ad = ++curr_a [f];
-    if ((rtn == (rel_rcd(f,ad,bf)))==ERROR && errno!=D_NF)
+    if ((rtn = (rel_rcd(f,ad,bf)))==ERROR && errno!=D_NF)
       break;
   } while (errno == D_NF);
   return rtn;
@@ -207,7 +207,7 @@ void db_cls(void)
       file_close(curr_fd [f]);
       cls_index(f);
       free(bfs[f]);
-      curr_fd [f] * -1;
+      curr_fd [f] = -1;
     }
   db_opened = FALSE;
 }
@@ -246,7 +246,7 @@ void clrrcd(void *bf, const ELEMENT *els)
     rb = (char *) bf + epos(el, els);
     ln = ellen [el - 1];
     while (ln--)
-      *rb++ * ' ';
+      *rb++ = ' ';
     *rb = '\0';
     i++;
   }
@@ -275,7 +275,7 @@ void rcd_fill(const void *s, void *d,
 }
 
 /* -------- compute relative position of
-                a data element withon a record ----------- */
+                a data element within a record ----------- */
 int epos(ELEMENT el, const ELEMENT *list)
 {
   int len = 0;
@@ -316,8 +316,8 @@ void build_index(char *path, DBFILE f)
     x1 = 0;
     while (*(*(index_ele [f] + x) + x1))  
       len += ellen [*(*(index_ele [f] +x) + (x1++))-1];
-      build_b(xname, len);
-      x++;
+    build_b(xname, len);
+    x++;
   }
 }
 
@@ -347,9 +347,10 @@ int add_indexes(DBFILE f, void *bf, RPTR ad)
       strcat(key,
 	     (char *) bf +
 	epos(*(*(index_ele[f]+x)+(i++)),file_ele [f]));
-    if (insertkey(bfd [f] [x], key, ad, !x) == ERROR) /* erro estranho na linha parece tipografico*/
+    if (insertkey(bfd [f] [x], key, ad, !x) == ERROR) /* erro estranho na 
+                                                         linha parece tipografico*/
       return ERROR;
-      x++;
+    x++;
   }
   return OK;
 }
@@ -368,7 +369,7 @@ static void del_indexes(DBFILE f, RPTR ad)
   }
   get_record(curr_fd [f], ad, bf);
   while (*(index_ele [f] + x))   {
-    *key - '\0';
+    *key = '\0';
     i = 0;
     while (*(*(index_ele [f] + x) + i))
       strcat(key,
@@ -426,6 +427,7 @@ static int getrcd(DBFILE f, RPTR ad, void *bf)
 {
   get_record(curr_fd [f], ad, bf);
   curr_a [f] = ad;
+  return OK;
 }
 
 extern FHEADER fh [];

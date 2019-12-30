@@ -14,7 +14,6 @@
 
 /* initialize tyhos to call your function for data base errors */
 extern void (*database_message)(void);
-
 #define ERROR -1
 #ifndef OK
 #define OK 0
@@ -34,8 +33,8 @@ typedef int ELEMENT;
 /* ---------- schema as built for the application --------- */
 extern const char *dbfiles[];       /* file names           */
 extern const char *denames[];       /* data element names   */
-extern const char *elmask[];       /* data element masks   */
-extern const char eltype[];        /* data element types   */
+extern const char *elmask[];        /* data element masks   */
+extern const char eltype[];         /* data element types   */
 extern const int ellen[];           /* data element lengths */
 extern const ELEMENT *file_ele[];   /* file data elements   */
 extern const ELEMENT **index_ele[]; /* index data elements  */

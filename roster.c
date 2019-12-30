@@ -10,7 +10,7 @@
 #include "sort.h"
 
 struct clients cl;
-
+#pragma GCC diagnostic ignored "-Wmain"
 void main(void)
 {
   static DBFILE fl[] = {CLIENTS, -1};

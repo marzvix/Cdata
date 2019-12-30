@@ -7,7 +7,7 @@
 #include "datafile.h"
 
 static void index_m(int, int *);
-
+#pragma GCC diagnostic ignored "-Wmain"
 void main(void)
 {
     int f, x;
@@ -52,7 +52,7 @@ static void index_m(int f, int *m)
         for (x1 = 0; index_ele [f] [x] [x1]; x++)
             len += ellen [index_ele [f] [x] [x1] - 1];
         *m++ = ((NODE-(sizeof(int)*2)
-                 -sizeof(RPTR) *4))/(len+sizeof(RPTR));
+                 -sizeof(RPTR)*4))/(len+sizeof(RPTR));
     }
     *m = 0;
 }

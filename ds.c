@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "cdata.h"
-
+#pragma GCC diagnostic ignored "-Wmain"
 void main(int argc, char *argv[])
 {
   DBFILE f;

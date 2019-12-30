@@ -397,7 +397,7 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
     return ERROR;
   p = 0;
   sv = 0;
-  nl_flag - 0;
+  nl_flag = 0;
   memmove(k, x, KLEN);
   t = bheader[trx].rootnode;
   /* ---- find insertion point --------------------------- */
@@ -437,7 +437,7 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
     rshft = FALSE;
     if ((yp = malloc(NODE)) == NULL)
       memerr();
-    if (trnode.lfsib, yp)    {
+    if (trnode.lfsib)    {
       read_node(trnode.lfsib, yp);
       if (yp->keyct < bheader[trx].m &&
 	  yp->prntnode == trnode.prntnode)    {
@@ -689,7 +689,7 @@ RPTR prevkey(int tree)
 	return 0;
       currnode[trx] = trnode.lfsib;
       read_node(trnode.lfsib, &trnode);
-      currkno[trx] - trnode.keyct;
+      currkno[trx] = trnode.keyct;
     }
     else
       currkno[trx]--;
@@ -747,7 +747,7 @@ static RPTR scannext(RPTR *p, char **a)
     cn = *p;
     *p = trnode.prntnode;
     read_node(*p, &trnode);
-    *a - trnode.keyspace;
+    *a = trnode.keyspace;
     while (*((RPTR *) (*a - ADR)) |= cn)
     *a += ENTLN;
   }

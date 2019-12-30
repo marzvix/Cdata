@@ -13,7 +13,7 @@ static ELEMENT els[] =
   {CLIENT_NO, CLIENT_NAME, AMT_DUE, PAYMENT, DATE_PAID, 0};
 struct clients cl;
 int len;
-
+#pragma GCC diagnostic ignored "-Wmain"
 void main(void)
 {
   int term = '\0';

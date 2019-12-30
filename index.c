@@ -6,7 +6,7 @@
 #include "cdata.h"
 
 extern RPTR curr_a[];   /* current record file address */
-
+#pragma GCC diagnostic ignored "-Wmain"
 void main(int argc, char *argv[])
 {
   int f = 1, i;

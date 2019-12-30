@@ -42,7 +42,7 @@ int screen_displayed;          /* template displayed flag  */
 
 /* ---------------- initialize the screen process ---------*/
 void init_screen(char *name, const ELEMENT *els, char *bfr)
-{ /* ok */
+{
   tname = name;
   elist = els;
   bf = bfr;
@@ -67,8 +67,8 @@ static int elp(ELEMENT el)
 {
   int i;
 
-  for (i = 0; *(elist + 1); i++)
-    if (el == *(elist +1))
+  for (i = 0; *(elist + i); i++)
+    if (el == *(elist + i))
       break;
   return i;
 }
@@ -86,7 +86,7 @@ void display_template(void)
   ct = no_flds();
   printf("\n                    --- %s ---\n", tname);
   for (i = 0; i < ct; i++) {
-    el = *(elist + 1) - 1;
+    el = *(elist +  i) - 1;
     cp1 = denames[el];
     cp2 = detag;
     while (*cp1 && cp2 < detag + sizeof detag - 1)   {
@@ -110,7 +110,7 @@ int data_entry(void)
   char *bfptr;
 
   if (screen_displayed == 0)
-    display_template();
+    display_template();  
   tally();
   field_ctr = no_flds();
   /* ---- collect data from keyboard into screen ---- */
@@ -143,7 +143,7 @@ int data_entry(void)
       case UP:               /* cursor up key */
       case BS:               /* back space */
 	if (field_ptr+1 == 0)
-	  field_ptr = field_ctr -1;
+	  field_ptr = field_ctr - 1;
 	else
 	  field_ptr--;
 	break;
@@ -165,7 +165,7 @@ static int no_flds(void)
   return ct;
 }
 
-/* ------ compute data elemetn field coordinates ----------*/
+/* ------ compute data element field coordinates ----------*/
 static void data_coord(ELEMENT el)
 {
   prev_col = 17;
@@ -182,7 +182,7 @@ static int read_element
 
   while (*mask != FieldChar)    {
     prev_col++;
-    mask;
+    mask++;
   }
   while (TRUE)    {
     cursor(prev_col, prev_row);
@@ -342,14 +342,14 @@ static int validate_date(char *s)
   month = atoi(date+2)-1;
   /* ------ extract the day ------ */
   *(date+2) = '\0';
-  day = atoi(date-1);
+  day = atoi(date)-1;
   /* ------ leap year adjustment ------ */
   if ((year % 4) == 0)
     days_in_month[1] = 29;
   else
     days_in_month[1] = 28;
   if (month < 12)
-    if (day <days_in_month [month])
+    if (day < days_in_month [month])
       return 0L;
   error_message("Invalid date");
     return ERROR;
@@ -364,7 +364,7 @@ void tally(void)
     put_field(*els++);
 }
 
-/* ------- writed a data elemente on the screen -----------*/
+/* ------- writed a data element on the screen ----------- */
 void put_field(ELEMENT el)
 {
   data_coord(el);
@@ -372,7 +372,7 @@ void put_field(ELEMENT el)
   disp_element(bf + epos(el, elist), elmask[el - 1]);
 }
 
-/* ------------ display a data element --------------------*/
+/* ------------ display a data element ------------------- */
 static void disp_element(char *b, const char *msk)
 {
   while (*msk)    {
@@ -393,14 +393,14 @@ static void insert_status(void)
 
 /* ----------- error messages -----------------------------*/
 void error_message(char *s)
-{ /* ok */
+{
   putchar('\a');
   post_notice(s);
 }
 
 /* ----------- clear notice line --------------------------*/
 void clear_notice(void)
-{ /* ok */
+{
   int i;
 
   if (notice_posted)   {
@@ -414,7 +414,7 @@ void clear_notice(void)
 
 /* ----------- post a notice ------------------------------*/
 void post_notice(char *s)
-{ /* ok */
+{ 
   clear_notice();
   cursor(0,24);
   while(*s) {
@@ -427,7 +427,7 @@ void post_notice(char *s)
 
 /* ------------ specif data base error --------------------*/
 static void database_error(void)
-{ /* ok */
+{
   static char *ers [] = {
      "Record not found",
      "No prior record",

@@ -1,14 +1,7 @@
 /* -- pg 183 ---- sys.c ---------------------------- */
+
 #include <stdio.h>
-
-#ifdef __CYGWIN__
-#include <curses.h>
-#else
-#ifdef __DOS__
-#include <conio.h>
-#endif
-#endif
-
+/* #include <conio.h> */#include <stdlib.h>
 #include "keys.h"
 #include "sys.h"
 #include "cdata.h"
@@ -16,64 +9,45 @@
 /* =======================================================
    The following functions are keyboard and screen drivers
    for the pc with ANSI.SYS installed
-   /* ======================================================= */
+   ======================================================= */
 
 extern int FieldChar, screen_displayed;
 
 /* -------- write a character to the screen -------------- */
 void put_char(int c)
-{ /* ok */
-    switch (c) {
-    case FWD: printf("\033[C");
-        break;
-    case UP: printf("\033[A");
-        break;
-    /* default:  putchar(c == ' ' ? FieldChar : c); */
-    }        
-    fflush(stdout);
+{
+  switch (c) {
+  case FWD: printf("[C");
+    break;
+  case UP: printf("[A");
+    break;
+  default: putchar(c == ' ' ? FieldChar : c);
+  }
+  fflush(stdout);
 }
 
+/* ------------ set the cursor position ------------------ */
 void cursor(int x, int y)
-{ /* ok */
-    printf("\033[%%02;0%dH",y+1, x+1);
-    fflush(stdout);
+{
+  printf("[%02d;%02dH",y+1, x+1);
+  fflush(stdout);
 }
 
+/* -------------- clear the screen ----------------------- */
 void clear_screen(void)
 {
-    screen_displayed = 0;
-    printf("\033[2J");
-    fflush(stdout);
+  screen_displayed = 0;
+  printf("[0H;[2J"); 
+  fflush(stdout);
 }
+
+/* ------- get a keyboard character ---------------------- */
 
 int get_char(void)
 {
-    int c;
+  int c;
+  if ((c = getchar()) == 0)
+    c = getchar() | 128;
 
-    fpurge(stdin);
-
-    if ((c = getch()) == 0)
-        c = getch() | 128;
-    return c & 255;
+  return c & 255;
 }
-
-
-/* /\* ---- test ---- *\/ */
-/* int main(void) */
-/* { */
-/* #ifdef __CYGWIN__ */
-/*     initscr(); */
-/* 	clear(); */
-/*     noecho(); */
-/* 	cbreak();	/\* Line buffering disabled. pass on everything *\/ */
-/* #endif */
-
-/*     clear_screen(); */
-/*     printf("%x\n",get_char()); */
-
-/* #ifdef __CYGWIN__ */
-/*     //    endwin(); */
-/* #endif */
-
-/*     return 0; */
-/* } */

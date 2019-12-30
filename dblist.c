@@ -24,7 +24,7 @@ void dblist(FILE *fd, DBFILE f, int k, const ELEMENT *list)
       }
     }
     test_eop(fd, dbfiles [f], list);
-    fprintf(fd, "\nRecords: %s\n", rcdct);
+    fprintf(fd, "\nRecords: %d\n", rcdct);
     free(bf);
   }
 }

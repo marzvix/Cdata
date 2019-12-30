@@ -9,7 +9,7 @@
 #include "cbs.h"
 
 struct clients cl;
-
+#pragma GCC diagnostic ignored "-Wmain"
 void main(void)
 {
   static DBFILE fl[] = {CLIENTS, -1};
@@ -20,9 +20,9 @@ void main(void)
       break;
     printf("\n\n\nInvoice for Services Rendered\n");
     printf("\n%s", cl.client_name);
-    printf("\n%s",cl.address);
+    printf("\n%s", cl.address);
     printf("\n%s, %s %s", cl.city, cl.state, cl.zip);
-    printf("\n\nAmount Due: $%ld.%0sld\n",
+    printf("\n\nAmount Due: $%ld.%02ld\n",
 	   atol(cl.amt_due) / 100,
 	   atol(cl.amt_due) % 100);
   }
