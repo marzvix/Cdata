@@ -12,10 +12,10 @@
 HEADER bheader[MXTREES];
 BTREE trnode;
 
-static FILE *fp[MXTREES];         /* file pointers to indexes */
-static RPTR currnode[MXTREES]; /* node number of current key */
-static int currkno[MXTREES];      /* key number of current key */
-static int trx;                   /* current tree */
+static FILE *fp[MXTREES];       /* file pointers to indexes */
+static RPTR currnode[MXTREES];  /* node number of current key */
+static int currkno[MXTREES];    /* key number of current key */
+static int trx;                 /* current tree */
 
 /* ---------------- local prototypes ----------------------- */
 static int btreescan(RPTR *, char *, char **);
@@ -235,7 +235,7 @@ int deletekey(int tree, char *x, RPTR ad)
     memmove(a, qp->keyspace, KLEN);
     write_node(p, &trnode);
     p = q;
-    trnode.key0 = *b;
+    trnode = *qp;
     a = trnode.keyspace;
     b = (RPTR *) (a + KLEN);
     trnode.key0 = *b;
@@ -344,7 +344,7 @@ static void implode(BTREE *left, BTREE *right)
   memmove(a, right->keyspace, rt_len);
   /* --- point lower node to their new parent --- */
   if (left->nonleaf)
-    adopt(b, right->keyct, lf);
+    adopt(b, right->keyct + 1, lf);
   /* --- if global key poiter -> to the right sibiling
      change to -> left --- */
   if (currnode[trx] == left->rtsib)    {
@@ -589,7 +589,7 @@ static void redist(BTREE *left, BTREE *right)
   }
   else {
     e = right->keyspace+((n2-right->keyct)*ENTLN)-ADR;
-    memmove(e, right->keyspace,
+    memmove(e, right->keyspace-ADR,
 	    (right->keyct * ENTLN) + ADR);
     e -= KLEN;
     memmove(e, c, KLEN);
@@ -602,7 +602,7 @@ static void redist(BTREE *left, BTREE *right)
     memset(d, '\0', len);
     if (right->nonleaf)
       adopt(right->keyspace - ADR,
-	    left->keyct - 1 , left->rtsib);
+	    left->keyct - n1 , left->rtsib);
 	if (left->nonleaf == FALSE)
 	  if (right->lfsib == currnode[trx] &&
 	      currkno[trx] > n1) {
@@ -748,7 +748,7 @@ static RPTR scannext(RPTR *p, char **a)
     *p = trnode.prntnode;
     read_node(*p, &trnode);
     *a = trnode.keyspace;
-    while (*((RPTR *) (*a - ADR)) |= cn)
+    while (*((RPTR *) (*a - ADR)) != cn) /* <<< --- fica esperto */
     *a += ENTLN;
   }
   return 0;
@@ -778,7 +778,7 @@ static RPTR scanprev(RPTR *p, char **a)
     if (trnode.prntnode == 0 || trnode.lfsib == 0)
       break;
     cn = *p;
-    *p = trnode.prntnode == 0;
+    *p = trnode.prntnode;
     read_node(*p, &trnode);
     *a = trnode.keyspace;
     while(*((RPTR *) (*a - ADR)) != cn)
