@@ -55,7 +55,7 @@ int btree_init(char *ndx_name)
   /* ------- lock the btree ---------------- */
   bheader[trx].locked = TRUE;
   fseek(fp[trx], 0L, SEEK_SET);
-  fwrite(&bheader[trx], sizeof(HEADER),  1, fp[trx]);
+  fwrite(&bheader[trx], sizeof(HEADER), 1, fp[trx]);
   currnode[trx] = 0;
   currkno[trx] = 0;
   return trx;
@@ -393,7 +393,7 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
   int lshft, rshft;
 
   trx = tree;
-  if (trx > MXTREES || fp[trx] == 0)
+  if (trx >= MXTREES || fp[trx] == 0)
     return ERROR;
   p = 0;
   sv = 0;
@@ -443,7 +443,7 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
 	  yp->prntnode == trnode.prntnode)    {
 	lshft = TRUE;
 	redist(yp, &trnode);
-	write_node(trnode.rtsib, yp);
+	write_node(trnode.lfsib, yp);
       }
     }
     if (lshft == FALSE && trnode.rtsib)    {
@@ -469,11 +469,11 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
     b = (RPTR*)
       (trnode.keyspace+((trnode.keyct+1)*ENTLN)-ADR);
     bp->key0 = *b;
-    bp->key0 = *b;
+    bp->keyct = bheader[trx].m - trnode.keyct;
     rt_len = bp->keyct * ENTLN;
     a = (char *) ( b + 1);
     memmove(bp->keyspace, a, rt_len);
-    bp->rtsib = p;
+    bp->rtsib = trnode.rtsib;
     trnode.rtsib = p;
     bp->lfsib = t;
     bp->nonleaf = trnode.nonleaf;
