@@ -335,7 +335,7 @@ static void implode(BTREE *left, BTREE *right)
   lf_len = left->keyct * ENTLN;
   a = left->keyspace + lf_len;
   memmove(a, j, KLEN);
-  memmove(j, '\0', ENTLN);
+  memset(j, '\0', ENTLN);
   /* --- move keys from right sibling to left --- */
   b = (RPTR *) (a + KLEN);
   *b = right->key0;
@@ -419,7 +419,7 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
   while (t) {
     nl_flag = 1;
     rt_len = (trnode.keyspace+(bheader[trx].m*ENTLN))-a;
-    memmove(a+ENTLN, a, rt_len);
+    memmove(a+ENTLN, a,rt_len);
     memmove(a, k, KLEN);
     b = (RPTR *) (a + KLEN);
     *b = ad;
@@ -520,6 +520,7 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
     }
     free(bp);
   }
+
   /* ----------------- new root --------------------- */
   if (p == 0)
     p = nextnode();
@@ -534,8 +535,10 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
   bp->key0 = sv;
   *((RPTR *) (bp->keyspace + KLEN)) = ad;
   memmove(bp->keyspace, k, KLEN);
+  puts("\033[s\033[0;35f *** pass 6 *** \033[u");
   write_node(p, bp);
-  free(bp);
+  puts("\033[s\033[0;35f *** pass 7 *** \033[u");
+  //free(bp);
   bheader[trx].rootnode = p;
   if (nl_flag == FALSE)    {
     bheader[trx].rightmost = p;
@@ -579,14 +582,14 @@ static void redist(BTREE *left, BTREE *right)
     memmove(d, e, len);
     memset(d+len, '\0', e-d);
     if(right->nonleaf == 0 &&
-       left->rtsib == currnode[trx])
+       left->rtsib == currnode[trx]) {
       if (currkno[trx] < right->keyct - n2)     {
 	currnode[trx] = right->lfsib;
 	currkno[trx] += n1 + 1;
       }
       else
-	currkno[trx] -= right->keyct - n2;
-  }
+	currkno[trx] -= right->keyct - n2; 
+    }}
   else {
     e = right->keyspace+((n2-right->keyct)*ENTLN)-ADR;
     memmove(e, right->keyspace-ADR,
@@ -603,15 +606,15 @@ static void redist(BTREE *left, BTREE *right)
     if (right->nonleaf)
       adopt(right->keyspace - ADR,
 	    left->keyct - n1 , left->rtsib);
-	if (left->nonleaf == FALSE)
-	  if (right->lfsib == currnode[trx] &&
-	      currkno[trx] > n1) {
-	    currnode[trx] = left->rtsib;
-	    currkno[trx] -= n1 + 1;
-	  }
-	  else if (left->rtsib == currnode[trx])
-	    currkno[trx] += left->keyct - n1;
-  }
+    if (left->nonleaf == FALSE) {
+      if (right->lfsib == currnode[trx] &&
+	  currkno[trx] > n1) {
+	currnode[trx] = left->rtsib;
+	currkno[trx] -= n1 + 1;
+      }
+      else if (left->rtsib == currnode[trx])
+	currkno[trx] += left->keyct - n1;
+  }}
   right->keyct = n2;
   left->keyct = n1;
   write_node(z, zp);
@@ -865,8 +868,8 @@ static void write_node(RPTR nd, void *bf)
 /* -------- seek to the  b-tree node --------------- */
 static void bseek(RPTR nd)
 {
-    if (fseek(fp[trx],
-              (long) (NODE+((nd-1)*NODE)), SEEK_SET) == ERROR) {
+    if (ERROR == fseek(fp[trx],
+              (long) (NODE+((nd-1)*NODE)), SEEK_SET)) {
         errno = D_IOERR;
         dberror();
     }

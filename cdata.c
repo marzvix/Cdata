@@ -18,7 +18,7 @@ static int data_in(char *);
 static int getrcd(DBFILE, RPTR, void *);
 static int rel_rcd(DBFILE, RPTR, void *);
 
-static int db_opened = FALSE;   /* data base opende indicator */
+static int db_opened = FALSE;   /* data base opened indicator */
 static int curr_fd [MXFILS];    /* current file descriptor    */
 static char *bfs [MXFILS];      /* file i/o buffers           */
 static int bfd [MXFILS] [MXINDEX];
@@ -57,12 +57,11 @@ int add_rcd(DBFILE f, void *bf)
 {
     RPTR ad;
     int rtn;
-
     if ((rtn = relate_rcd(f, bf)) != ERROR) {
         ad = new_record(curr_fd[f], bf);
         if ((rtn = add_indexes(f, bf, ad)) == ERROR)    {
-            errno = D_DUPL;
-            delete_record(curr_fd [f], ad);
+	  errno = D_DUPL;
+	  delete_record(curr_fd [f], ad);
         }
     }
     return rtn;
@@ -253,7 +252,7 @@ void clrrcd(void *bf, const ELEMENT *els)
 }
 
 
-/* ------------------------------------------------------- */
+/* ------- move data from one record to another ---------- */
 void rcd_fill(const void *s, void *d,
               const ELEMENT *slist,
               const ELEMENT *dlist)
@@ -261,7 +260,7 @@ void rcd_fill(const void *s, void *d,
   const int *s1;
   const int *d1;
 
-  s1  = slist;
+  s1 = slist;
   while (*s1) {
     d1 = dlist;
     while (*d1)   {
@@ -347,6 +346,7 @@ int add_indexes(DBFILE f, void *bf, RPTR ad)
       strcat(key,
 	     (char *) bf +
 	epos(*(*(index_ele[f]+x)+(i++)),file_ele [f]));
+    puts("\033[s\033[0;35f *** pass 5 *** \033[u");      
     if (insertkey(bfd [f] [x], key, ad, !x) == ERROR) /* erro estranho na 
                                                          linha parece tipografico*/
       return ERROR;

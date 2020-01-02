@@ -53,11 +53,11 @@ void main(int argc, char *argv[])
       }
       init_rcd(file, rb);
       init_rcd(file, hb);
-      init_screen(argv[1], els, sc); 
-      query(); 
-      free(hb);
-      free(rb);
-      free(sc);
+      init_keys(); init_screen(argv[1], els, sc); 
+      query();  puts("pass 1");
+      free(hb); puts("pass 2");
+      free(rb); puts("pass 3");
+      free(sc); puts("pass 4");
     }
   }
 }
@@ -71,20 +71,20 @@ static void query(void)
   db_open("", fl);
   clrrcd(sc, els);
   set_trap();
-  while (term != ESC) {
+  while (term != F2) {
     term = data_entry();
     switch (term)    {
     /* ------------ GO ---------------- */
     case F1: rcdout();
       break;
-    /* ------- first record ----------- */
-    case HOME: rcdout();
+    /* ------- First record ----------- */
+    case HOME:  rcdout();
       if (first_rcd(file, 1, rb) == ERROR)
-	post_notice("Empty file");
+      	post_notice("Empty file");
       else
-	rcdin();
+      	rcdin();
       break;
-    /* ------- first record ----------- */
+    /* ------- Last record ------------ */
     case END: rcdout();
       if (last_rcd(file, 1, rb) == ERROR)
 	post_notice("Empty file");
@@ -116,16 +116,16 @@ static void query(void)
       rcdin();
       break;
       /* ------- delete record ------------ */
-    case F7:  if (spaces(rb)==0) {
-	post_notice("Verify w/F7");
-	if (get_char() == F7)    {
+    case F4:  if (spaces(rb)==0) {
+	post_notice("Verify w/F4");
+	if (get_char() == F4)    {
 	  del_rcd(file);
 	  clear_record();
 	}
 	clear_notice();
       }
       break;
-    case ESC: if (spaces(sc))
+    case F3: if (spaces(sc))
 	break;
       clear_record();
       term = 0;
@@ -133,8 +133,8 @@ static void query(void)
     default: break;
     }
   }
-  clear_screen();
-  db_cls();
+ clear_screen(); puts("passed");
+ db_cls();
 }
 
 /* ------------- clear the record area ------------------  */
@@ -165,6 +165,7 @@ static void rcdin(void)
 static void rcdout(void)
 {
   if (empty(sc, len) == 0)    {
+
     rcd_fill(sc, rb, els, file_ele[file]);
     if (existing_record)    {
       if (same() == 0)    {
@@ -178,6 +179,7 @@ static void rcdout(void)
 	dberror();
     }
     clear_record();
+
   }
 }
 
@@ -213,7 +215,7 @@ static void set_trap(void)
   edit(index_ele [file] [0] [i-1], key_entry);
 }
 
-/* --- come here whe the primary key has been enterd ---- */
+/* --- come here when the primary key has been entered ---- */
 static int key_entry(char *s)
 {
   char key [MXKEYLEN];

@@ -10,7 +10,8 @@ GCCPATH = /usr/bin
 # -----------------------------------------------------------
 # Compiler
 # -----------------------------------------------------------
-CC = $(GCCPATH)/i686-w64-mingw32-gcc
+#CC = $(GCCPATH)/i686-w64-mingw32-gcc
+CC = gcc
 CFLAGS = -g3 -O0 -Wall -Wextra
 LDFLAGS =
 
@@ -43,13 +44,12 @@ all: 	cdata.lib schema dbinit invoice qd ds index roster \
 
 exenotyet: 
 
+# .PHONY: tests
+# tests:  test_screen
 
-.PHONY: tests
-tests:  test_screen
+test_screen.o: test_screen.c
 
-test_screen.o: test_screen.c screen.c screen.h sys.c sys.h
-
-test_screen: test_screen.o screen.o sys.o cbs.o cdata.o
+test_screen: test_screen.o cdata.lib cbs.o
 
 #include  cbs.mk
 
@@ -59,13 +59,15 @@ test_screen: test_screen.o screen.o sys.o cbs.o cdata.o
 cdata.lib: sys.o \
 	dblist.o \
 	cdata.o \
+	keys.o \
 	screen.o \
 	btree.o \
 	ellist.o \
 	datafile.o \
 	clist.o \
 	sort.o \
-	filename.o	
+	filename.o \
+	ttcon.o
 	ar rcs $@ $^
 
 cbs.o: cbs.c cbs.h 
@@ -76,6 +78,8 @@ cbs.c cbs.h: schema
 ellist.o: ellist.c cdata.h
 
 cdata.o: cdata.c cdata.h datafile.h btree.h keys.h
+
+keys.o:	keys.c keys.h
 
 screen.o: screen.c cdata.h screen.h keys.h
 
@@ -94,6 +98,8 @@ sort.o: sort.c cdata.h sort.h
 sys.o: sys.c cdata.h sys.h
 
 filename.o: filename.c cdata.h
+
+ttcon.o: ttcon.c ttcon.h
 
 # -----------------------------------------------------------
 # The data base schema

@@ -76,7 +76,7 @@ static int elp(ELEMENT el)
 /* ----------- display the crt template -------------------*/
 void display_template(void)
 {
-  int i, ct;
+  int i, ct;                      /* NOTA: \n\r adicionado */
   ELEMENT el;
   char detag[16], *cp2;
   const char *cp1;
@@ -84,7 +84,7 @@ void display_template(void)
   clear_screen();
   screen_displayed = TRUE;
   ct = no_flds();
-  printf("\n                    --- %s ---\n", tname);
+  printf("\n\r                    --- %s ---\n\r", tname);
   for (i = 0; i < ct; i++) {
     el = *(elist +  i) - 1;
     cp1 = denames[el];
@@ -94,9 +94,9 @@ void display_template(void)
       cp1++;
     }
     *cp2 = '\0';
-    printf("\n%-16.16s %s", detag, elmask[el]);
+    printf("\n\r%-16.16s %s", detag, elmask[el]);
   }
-  printf("\n");
+  printf("\n\r");
   insert_status();
 }
 
@@ -200,7 +200,7 @@ static int read_element
 	--mask;
 	--prev_col;
       } while (*mask != FieldChar);
-      if (c == BS)
+      /* if (c == BS) */
 	break;
     case DEL:
       memmove(buff, buff+1, strlen(buff));
@@ -215,7 +215,7 @@ static int read_element
       } while (*mask && *mask != FieldChar);
       buff++;
       break;
-    case INS:
+    case F4: /* INS */
       insert_mode ^= TRUE;
       insert_status();
       break;
@@ -291,7 +291,7 @@ static void right_justify(char *s)
   int len;
 
   len = strlen(s);
-  while (*s == ' ' || *s == '0' && len)     {
+  while ((*s == ' ' || *s == '0') && len)     {
     len--;
     *s++ = ' ';
   }
@@ -408,7 +408,7 @@ void clear_notice(void)
     for ( i = 0; i < 50; i++)
       putchar(' ');
     notice_posted = FALSE;
-    cursor(prev_col, prev_col);
+    cursor(prev_col, prev_row);
   }
 }
 

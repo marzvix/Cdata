@@ -9,8 +9,8 @@ pg 117         The Cdata System Architecture
         __________________________________________ 
        |                                          |
 +---------------+                         +---------------+
-|   DATA BASE   |			  |   DATA BASE   |
-|  MNGMT SFTW   |			  |  MNGMT SFTW   |
+| APPLICATION   |			  |   DATA BASE   |
+|   SOFTWARE    |			  |   UTILITIES   |
 +---------------+			  +---------------+
        |__________________________________________|
                             |

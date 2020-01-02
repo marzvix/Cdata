@@ -3,9 +3,9 @@
 #include <stdio.h>
 /* #include <conio.h> */#include <stdlib.h>
 #include "keys.h"
+#include "ttcon.h"
 #include "sys.h"
 #include "cdata.h"
-
 /* =======================================================
    The following functions are keyboard and screen drivers
    for the pc with ANSI.SYS installed
@@ -46,8 +46,9 @@ void clear_screen(void)
 int get_char(void)
 {
   int c;
-  if ((c = getchar()) == 0)
-    c = getchar() | 128;
+  return getch_t();
+  /* if ((c = getch()) == 0) */
+  /*   c = getch()  | 128;  */
 
-  return c & 255;
+  /* return c & 255;  */
 }

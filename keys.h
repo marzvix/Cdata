@@ -1,5 +1,4 @@
 /* -- pg 181 ----------- keys.h -------------------------- */
-
 #ifndef KEYS_H
 #define KEYS_H
 
@@ -17,12 +16,15 @@
 #define F2          188
 #define F3          189
 #define F4          190
-#define F5          191
-#define F6          192
-#define F7          193
-#define F8          194
-#define F9          195
-#define F10         196
+#define F5          191 /* used by screen */
+#define F6          192 /* used by screen */
+#define F7          193 /* used by screen */
+#define F8          194 /* used by screen */
+#define F9          195 /* used by screen */
+#define F10         196 /* used by screen */
+
+#define CTRL_C        3
+#define CTRL_D        4
 
 /* #define CTRL_F1     222 */
 /* #define CTRL_F2     223 */
@@ -51,6 +53,8 @@
 #define PGUP        201
 #define BS          203
 #define FWD         205
+#define BWD         204
+
 #define END         207
 #define DN          208
 #define PGDN        209
@@ -113,15 +117,8 @@
 /* #define CAPSLOCK   0x40 */
 /* #define INSERTKEY  0x80 */
 
-/* struct keys { */
-/*     int keycode; */
-/*     char *keylabel; */
-/* }; */
-/* int getkey(void); */
-/* int getshift(void); */
-/* int keyhit(void); */
-/* void beep(void); */
-/* extern struct keys keys[]; */
-/* extern char altconvert[]; */
+void init_keys(void);
+int  getch_t(void);  /* get key 'DOS' translated
+                            wrapper to getch  */
 
 #endif

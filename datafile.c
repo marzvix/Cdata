@@ -13,7 +13,7 @@ static FILE *fp[MXFILS];
 FHEADER fh[MXFILS];
 
 /* ---------- crete a file ------------------------- */
-void file_create(char *name /* file name */, int len /* record lenght */)
+void file_create(char *name, int len)
 {
   FILE *fp;         
   FHEADER hd;       
