@@ -23,7 +23,7 @@ extern void (*database_message)(void);
 #define FALSE 0
 #endif  /* TRUE */
 
-typedef long RPTR;        /* B-tree node and file address   */
+typedef int RPTR;        /* B-tree node and file address   */
 
 #ifndef APPLICATION_H
 typedef int DBFILE;

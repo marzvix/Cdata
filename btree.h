@@ -1,7 +1,7 @@
 /* -- pg 147 ------ btree.h ------------------------------- */
 
 #define MXTREES 20
-#define NODE 51                  /* length of a B-tree node */
+#define NODE 512                 /* length of a B-tree node */
 #define ADR sizeof(RPTR)
 
 /* ---------------- btree prototype ----------------------- */
@@ -35,7 +35,7 @@ typedef struct treehdr {
     RPTR rootnode;           /* root node number     */
     int keylength;           /* length of a key      */
     int m;                   /* max keys/node        */
-    RPTR rised_node;         /* nexe released node   */
+    RPTR rlsed_node;         /* next released node   */
     RPTR endnode;            /* next unassigned node */
     int locked;              /* if btree is locked   */
     RPTR leftmost;           /* left-most node       */

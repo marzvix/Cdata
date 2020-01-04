@@ -54,10 +54,10 @@ void main(int argc, char *argv[])
       init_rcd(file, rb);
       init_rcd(file, hb);
       init_keys(); init_screen(argv[1], els, sc); 
-      query();  puts("pass 1");
-      free(hb); puts("pass 2");
-      free(rb); puts("pass 3");
-      free(sc); puts("pass 4");
+      query(); 
+      free(hb);
+      free(rb);
+      free(sc);
     }
   }
 }
@@ -133,7 +133,7 @@ static void query(void)
     default: break;
     }
   }
- clear_screen(); puts("passed");
+ clear_screen();
  db_cls();
 }
 
@@ -153,7 +153,7 @@ static void rcdin(void)
   int i = 0;
 
   if (empty(rb, rlen(file)) == 0) {
-    rcd_fill(sc, rb, file_ele[file], els);
+    rcd_fill(rb, sc, file_ele[file], els);
     memmove(hb, rb, rlen(file));
     existing_record = TRUE;
     while (index_ele [file] [0] [i])

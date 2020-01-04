@@ -224,7 +224,7 @@ static void merge()
   }
 }
 
-/* -------- dump the sort buffer to the wrok files -------- */
+/* -------- dump the sort buffer to the work files -------- */
 static void dumpbuff()
 {
   int i;

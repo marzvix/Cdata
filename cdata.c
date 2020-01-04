@@ -131,7 +131,7 @@ int prev_rcd(DBFILE f, int k, void *bf)
     RPTR ad;
 
     if ((ad = prevkey(treeno(f,k))) == 0) {
-        errno = D_NF;
+        errno = D_BOF;
         return ERROR;
     }
     return getrcd(f, ad, bf);
@@ -159,7 +159,7 @@ int rtn_rcd(DBFILE f, void *bf)
 /* ------- delete the current record from file ----------- */
 int del_rcd(DBFILE f)
 {
-    if (curr_a [f] == 0)  {
+    if (curr_a [f])  {
       del_indexes(f, curr_a [f]);
       delete_record(curr_fd [f], curr_a [f]);
       curr_a [f] = 0;
@@ -314,7 +314,7 @@ void build_index(char *path, DBFILE f)
     len = 0;
     x1 = 0;
     while (*(*(index_ele [f] + x) + x1))  
-      len += ellen [*(*(index_ele [f] +x) + (x1++))-1];
+      len += ellen [*(*(index_ele [f] + x) + (x1++))-1];
     build_b(xname, len);
     x++;
   }
@@ -346,9 +346,7 @@ int add_indexes(DBFILE f, void *bf, RPTR ad)
       strcat(key,
 	     (char *) bf +
 	epos(*(*(index_ele[f]+x)+(i++)),file_ele [f]));
-    puts("\033[s\033[0;35f *** pass 5 *** \033[u");      
-    if (insertkey(bfd [f] [x], key, ad, !x) == ERROR) /* erro estranho na 
-                                                         linha parece tipografico*/
+    if (insertkey(bfd [f] [x], key, ad, !x) == ERROR)
       return ERROR;
     x++;
   }

@@ -305,8 +305,8 @@ int deletekey(int tree, char *x, RPTR ad)
     bheader[trx].rootnode = trnode.key0;
     trnode.nonleaf = FALSE;
     trnode.key0 = 0;
-    trnode.prntnode = bheader[trx].rised_node;
-    bheader[trx].rised_node = p;
+    trnode.prntnode = bheader[trx].rlsed_node;
+    bheader[trx].rlsed_node = p;
   }
   if (bheader[trx].rootnode == 0)
     bheader[trx].rightmost = bheader[trx].leftmost = 0;
@@ -353,8 +353,8 @@ static void implode(BTREE *left, BTREE *right)
   }
   /* --- update control values in left sibiling mode --- */
   left->keyct += right->keyct + 1;
-  c = bheader[trx].rised_node;
-  bheader[trx].rised_node = left->rtsib;
+  c = bheader[trx].rlsed_node;
+  bheader[trx].rlsed_node = left->rtsib;
   if (bheader[trx].rightmost == left->rtsib)
     bheader[trx].rightmost = right->lfsib;
   left->rtsib = right->rtsib;
@@ -520,7 +520,6 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
     }
     free(bp);
   }
-
   /* ----------------- new root --------------------- */
   if (p == 0)
     p = nextnode();
@@ -535,10 +534,8 @@ int insertkey(int tree, char *x, RPTR ad, int unique)
   bp->key0 = sv;
   *((RPTR *) (bp->keyspace + KLEN)) = ad;
   memmove(bp->keyspace, k, KLEN);
-  puts("\033[s\033[0;35f *** pass 6 *** \033[u");
   write_node(p, bp);
-  puts("\033[s\033[0;35f *** pass 7 *** \033[u");
-  //free(bp);
+  //free(bp); /* << ---- trava aqui - */
   bheader[trx].rootnode = p;
   if (nl_flag == FALSE)    {
     bheader[trx].rightmost = p;
@@ -569,7 +566,7 @@ static void redist(BTREE *left, BTREE *right)
     d = left->keyspace + (left->keyct * ENTLN);
     memmove(d, c, KLEN);
     d += KLEN;
-    e = right->keyspace + ADR;
+    e = right->keyspace - ADR;
     len = ((right->keyct - n2 - 1) * ENTLN) + ADR;
     memmove(d, e, len);
     if (left->nonleaf)
@@ -646,12 +643,12 @@ static RPTR nextnode(void)
     RPTR p;
     BTREE *nb;
 
-    if (bheader[trx].rised_node)   {
+    if (bheader[trx].rlsed_node)   {
         if ((nb = malloc(NODE)) == NULL)
             memerr();
-        p = bheader[trx].rised_node;
+        p = bheader[trx].rlsed_node;
         read_node(p, nb);
-        bheader[trx].rised_node = nb->prntnode;
+        bheader[trx].rlsed_node = nb->prntnode;
         free(nb);
     }
     else
@@ -751,7 +748,7 @@ static RPTR scannext(RPTR *p, char **a)
     *p = trnode.prntnode;
     read_node(*p, &trnode);
     *a = trnode.keyspace;
-    while (*((RPTR *) (*a - ADR)) != cn) /* <<< --- fica esperto */
+    while (*((RPTR *) (*a - ADR)) != cn)
     *a += ENTLN;
   }
   return 0;
@@ -868,8 +865,8 @@ static void write_node(RPTR nd, void *bf)
 /* -------- seek to the  b-tree node --------------- */
 static void bseek(RPTR nd)
 {
-    if (ERROR == fseek(fp[trx],
-              (long) (NODE+((nd-1)*NODE)), SEEK_SET)) {
+    if (fseek(fp[trx],
+              (long) (NODE+((nd-1)*NODE)), SEEK_SET) == ERROR) {
         errno = D_IOERR;
         dberror();
     }

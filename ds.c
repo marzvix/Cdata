@@ -45,6 +45,6 @@ void main(int argc, char *argv[])
   }
   else
     fprintf(stderr,
-	    "\nUsage: ds <data base file: [ -f <output file> ] "
+	    "\nUsage: ds <data base file> [ -f <output file> ] "
 	    "[ data element list ]");
 }
