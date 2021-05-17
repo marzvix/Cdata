@@ -12,7 +12,9 @@
 #define GCC		10	/* GCC				*/
 
 #define ERROR -1
+#ifndef TRUE
 #define OK 0
+#endif
 
 #ifndef TRUE
 #define TRUE 1

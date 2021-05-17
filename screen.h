@@ -6,7 +6,9 @@
 #include "sys.h"
 
 /* ---------- screen driver function definitions --------- */
-void init_screen(char *, const ELEMENT *, char *);
+void init_screen(void);
+void end_screen(void);
+
 void protect(ELEMENT, int);
 void edit(ELEMENT, int (*)());
 void display_template(void); 

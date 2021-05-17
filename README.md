@@ -1,3 +1,44 @@
+* seg 17 mai 2021 11:28:43 -03
+
+- Retomando o projeto
+
+  Após ler o livro do Dan Gookin sobre ncurses, sinto que será
+  melhor usar o NCurses ao invés de tentar usar o tty diretamente
+  Pelo que me lembro, esse projeto faz uso de rotinas básicas
+  de controle de tela que seriam o "embrião" do D-Flat.
+
+  O potencial do D-Flat não foi utilizado completamente porém o
+  princípio de utilização é o mesmo, pelo que me lembro do que
+  analisei do código em 2019.
+
+  A diferença é que agora estou usando o FreeBSD e o llvm.
+
+  Isso torna o código que tinha trabalhado até aqui mais palatável
+  para o ambiente unix
+
+-- Notas:
+
+   - Os schemas são gerados pelo aplicativo schema e o template
+     está definido em cbs.sch
+     
+   - São 3 schemas segundo o livro
+     - C1 - consultor
+     - C2 - projeto
+     - C3 - consultor x projeto
+
+   - Para gerar o schema, execute 
+
+     $ schema -1 < cbs.sch > cbs.c1
+     $ schema -2 < cbs.sch > cbs.c2 
+     $ schema -3 < cbs.sch > cbs.c3
+
+   - Serão gerados 3 arquivos : cbs.c1 cbs.c2 cbs.c3
+
+   - Esses arquivo são as estruturas relacionais do banco de
+     dados e devem ser compiladas com os programas de
+     indexacao, varredura e consulta, para manipulação do
+     banco de dados
+
 * qua, 18 de dez de 2019 23:12:48
 
 Ok, tudo migrado e compilado.
@@ -23,7 +64,6 @@ Obs:
 
 - Preparativos para gerar e compilar com o gnu c.
 - Ainda não deve compilar: vai requerer os ajustes nos fontes
-
 
 qua, 18 de dez de 2019 14:43:58
 

@@ -28,7 +28,7 @@ static int same();
 static void set_trap();
 static int key_entry();
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   if (argc > 1)	{
     if ((file = filename(argv[1])) != ERROR)	{
@@ -60,6 +60,7 @@ void main(int argc, char *argv[])
       free(sc);
     }
   }
+  return (0);
 }
 
 /* -------------- process the query ------------ */

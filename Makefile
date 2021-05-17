@@ -1,17 +1,16 @@
+# -----------------------------------------------------------
+# Makefile to build Cdata into an application
+# -----------------------------------------------------------
 
 # -----------------------------------------------------------
-# GCC Makefile to build Cdata into an application
+# Where clang is installed
 # -----------------------------------------------------------
-
-# -----------------------------------------------------------
-# Where GCC is installed
-# -----------------------------------------------------------
-GCCPATH = /usr/bin
+CCPATH = /usr/bin 
 
 # -----------------------------------------------------------
 # Compiler
 # -----------------------------------------------------------
-CC = $(GCCPATH)/gcc
+CC = $(CCPATH)/cc
 CFLAGS = -g -O0 -x c -std=c89 -DCOMPILER=10 
 LDFLAGS =
 
@@ -24,8 +23,8 @@ CDATA_APPL = cbs
 # -----------------------------------------------------------
 # Libraries
 # -----------------------------------------------------------
-LIBS = cdata # ncurses
-LIBPATH = $(GCCPATH)/lib
+LIBS = cdata ncurses
+LIBPATH = $(CCPATH)/lib
 
 # -----------------------------------------------------------
 # An implicit rule to build obj files from c files
@@ -45,13 +44,12 @@ all: 	cdata.lib schema dbinit invoice qd ds index \
 
 exenotyet: sort roster
 
-
 .PHONY: tests
 tests:  test_screen
 
-test_screen.o: test_screen.c screen.c screen.h sys.c # sys.h
+test_screen.o: test_screen.c #sys.c screen.c screen.h sys.c sys.h
 
-test_screen: test_screen.o screen.o sys.o cbs.o cdata.o # -lncurses
+test_screen: test_screen.o sys.o screen.o # cbs.o cdata.o #-lncurses
 
 #include  cbs.mk
 

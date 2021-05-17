@@ -11,3 +11,6 @@ attic/**.*
 **/*.x??
 **/*.dat
 **/*.bat
+schema
+test_screen
+cbs.c?

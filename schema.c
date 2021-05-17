@@ -81,7 +81,7 @@ static char *get_word();
 #define REMARK ';'
 
 /* ----------------- main program -------------- */
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   get_line();
   if (strncmp(ln, "#schema ", 8))
@@ -117,6 +117,8 @@ void main(int argc, char *argv[])
   else
     error(18);
   depart(0);
+
+  return (EXIT_SUCCESS);
 }
 
 /* -------- build the data element dictionary ---------- */
